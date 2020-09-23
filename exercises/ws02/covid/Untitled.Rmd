@@ -1,0 +1,176 @@
+---
+title: "Covid"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+library(here)
+library(tidyverse)
+library(roll)
+library(magrittr)
+
+# import data frames COVID: cases, tests and population size of municipalities
+dc <- read_delim(here("exercises", "ws02", "covid", "Municipality_cases_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
+dt <- read_delim(here("exercises", "ws02", "covid", "Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
+dsize <- read_delim(here("exercises", "ws02", "covid", "Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
+
+# make data tidy
+dc %<>% 
+  pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
+
+dt %<>% 
+  pivot_longer(cols = !PrDate_adjusted, names_to = "kommune", values_to = "testsConducted") %>%
+  arrange(kommune, PrDate_adjusted) %>%
+  rename(date_sample = PrDate_adjusted)
+
+# check there are no NA in the set
+sum(is.na(dc$casesDiagnosed))
+sum(is.na(dt$testsConducted))
+sum(is.na(dt$testsConducted))
+sum(is.na(dsize$Befolkningstal))
+
+# make data compatible rename columns for merging and
+dsize <- dsize %>%
+  select(contains("Kom"), Befolkningstal) %>%
+  rename("kID" = `Kommune_(id)`, "kommune" = `Kommune_(navn)`, population = Befolkningstal) %>%
+  mutate(population = population * 1000) %>%
+  select(-kID)
+
+# check Kommune name can be used as key
+dc[!(dc$kommune %in% dsize$kommune), ]$kommune
+dsize[!(dsize$kommune %in% dt$kommune), ]$kommune
+dt[!(dt$kommune %in% dsize$kommune), ]$kommune
+
+# ooops!
+# for some reason one data frame uses Københaven the other Copenhagen),
+dc$kommune <- str_replace(dc$kommune, "Copenhagen", "København")
+dt$kommune <- str_replace(dt$kommune, "Copenhagen", "København")
+# check again keys are clean OK re-run rows 35-37
+
+# merge data together
+dc <- merge(dc, dsize)
+dt <- merge(dt, dsize)
+
+# create new variables (e.g. rolling aggregates)
+dc %<>% 
+  group_by(kommune) %>%
+  mutate(casesDPer100k = casesDiagnosed / (population / 1000), 
+         dcr7d = roll_sum(casesDiagnosed, width = 7, min_obs = 1), 
+         ir7dP100k = dcr7d / (population / 1000))
+
+dt %<>% 
+  group_by(kommune) %>% 
+  mutate(testsPer100k = testsConducted / (population / 1000), 
+         tr7d = roll_sum(testsConducted, width = 7, min_obs = 1), 
+         tr7dP100k = tr7d / (population / 1000))
+
+# merge test with case data
+df <- merge(dc, dt)
+
+df$PosTestRate7d <- df$ir7dP100k / df$tr7dP100k
+
+# check there were no diagnosis without tests
+sum(df$casesDiagnosed > df$testsConducted)
+```
+
+## Covid data analysis DK overview
+
+
+```{r cars}
+
+```
+
+## Including Plots
+
+
+
+```{r}
+devtools::install_github("sebastianbarfort/mapDK")
+devtools::install_github("56north/leafletDK")
+
+library(mapDK)
+library(mapview)
+library(leaflet)
+library(leafletDK)
+library(tmap)
+library(stringr)
+library(maps)
+library(ggmap)
+library(rgdal)
+library(dplyr)
+library(tmap)
+library(spData)
+library(sf)
+library(sp)
+library(geojsonR)
+#tmap_mode("view")
+
+register_google(key = "AIzaSyBEPq4eqOeI6-O5CjjAUcugcAj3oHSD9lE")
+
+#########################
+######## LEAFLET ########
+#########################
+
+dk <- st_read("gadm36_DNK_2.shp")
+
+glimpse(dk)
+dk%>%
+  ggplot()+
+  geom_sf()+
+  theme_bw()
+#cleaning some names that differed in the datasets
+dk$NAME_2 <- str_replace(dk$NAME_2, "Århus", "Aarhus")
+dk$NAME_2 <- str_replace(dk$NAME_2, "Høje Tåstrup", "Høje-Taastrup")
+
+#joining the population to the shapefile
+dk_pop<-
+  dsize%>%
+  left_join(dk, by=c("kommune" = "NAME_2"))
+
+
+##DK coordinates, so i remember if i suddenly delete
+##lng 9.501785
+##lat 56.26392
+
+#transforming the df into a shapefile again, that makes us use the geopoints
+df_dk<-st_as_sf(dk_pop, sf_column_name = "geometry")
+
+###########MAP###########
+leaflet() %>% addTiles() %>% 
+  setView(lng = 9.501785, lat = 56.26392, zoom=7) %>% addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(data = df_dk, color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~colorQuantile("YlOrRd", population)(population),
+    label = df_dk$kommune) %>% addCircleMarkers(data=df_dk, lng=9.501785, lat=56.26392, popup = ~as.character(kommune), label = ~as.character(population)) #at the moment shows hjørrings population - it's because it's the last entry in the data.frame
+
+
+
+
+
+
+
+########OTHER TEST MAP STUFF########
+mapview(dk["NAME_2"], col.regions = sf.colors(10))
+
+tmap_mode("view")
+tm_shape(dk) + tm_fill("NAME_2", palette = sf.colors(5))
+
+
+folk1 <- readr::read_csv2("http://api.statbank.dk/v1/data/folk1a/CSV?OMR%C3%85DE=*")
+folk2<-folk1[-c(1, 2, 33, 51, 74, 94),]
+
+municipalityDK("INDHOLD", "OMRÅDE", data = folk2, legend = T) %>% addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~colorQuantile("YlOrRd", folk2$INDHOLD)(folk2$INDHOLD),
+    highlightOptions = highlightOptions(color = "white", weight = 2,
+      bringToFront = TRUE),
+    label=folk2$OMRÅDE,
+    labelOptions = labelOptions(
+    style = list("font-weight" = "normal", padding = "3px 8px"),
+    textsize = "15px",
+    direction = "auto")) 
+```
+
+
+
