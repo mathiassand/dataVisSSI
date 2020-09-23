@@ -111,7 +111,6 @@ register_google(key = "AIzaSyBEPq4eqOeI6-O5CjjAUcugcAj3oHSD9lE")
 #########################
 ######## LEAFLET ########
 #########################
-
 dk <- st_read("gadm36_DNK_2.shp")
 
 glimpse(dk)
@@ -121,28 +120,35 @@ dk%>%
   theme_bw()
 #cleaning some names that differed in the datasets
 dk$NAME_2 <- str_replace(dk$NAME_2, "Århus", "Aarhus")
-dk$NAME_2 <- str_replace(dk$NAME_2, "Høje Tåstrup", "Høje-Taastrup")
+dk$NAME_2 <- str_replace(dk$NAME_2, "Høje Taastrup", "Høje-Taastrup")
+dk$NAME_2 <- str_replace(dk$NAME_2, "Vesthimmerland", "Vesthimmerlands")
 
 #joining the population to the shapefile
 dk_pop<-
   dsize%>%
   left_join(dk, by=c("kommune" = "NAME_2"))
 
+#dk_full<-dk_pop%>%
+#  group_by(kommune)%>%
+#  select(kommune,population, TYPE_2) %>%
+#  merge(df)
 
-##DK coordinates, so i remember if i suddenly delete
+
+##DK coordinates, so i dont have to google them
 ##lng 9.501785
 ##lat 56.26392
 
-#transforming the df into a shapefile again, that makes us use the geopoints
+#transforming the df into a shapefile again, that makes us use the geometry points
 df_dk<-st_as_sf(dk_pop, sf_column_name = "geometry")
 
+ 
 ###########MAP###########
 leaflet() %>% addTiles() %>% 
   setView(lng = 9.501785, lat = 56.26392, zoom=7) %>% addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(data = df_dk, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~colorQuantile("YlOrRd", population)(population),
-    label = df_dk$kommune) %>% addCircleMarkers(data=df_dk, lng=9.501785, lat=56.26392, popup = ~as.character(kommune), label = ~as.character(population)) #at the moment shows hjørrings population - it's because it's the last entry in the data.frame
+    label = df_dk$kommune) %>% addCircleMarkers(data=df_dk, lng=9.98229, lat=57.46417, popup = ~as.character(population), label = ~as.character(kommune)) #at the moment shows hjørrings population - it's because it's the last entry in the data.frame
 
 
 
