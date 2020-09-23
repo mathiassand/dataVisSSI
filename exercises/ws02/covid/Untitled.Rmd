@@ -132,12 +132,6 @@ dk_pop <-
   dsize %>%
   left_join(dk, by = c("kommune" = "NAME_2"))
 
-# dk_full<-dk_pop%>%
-#  group_by(kommune)%>%
-#  select(kommune,population, TYPE_2) %>%
-#  merge(df)
-
-
 ## DK coordinates, so i dont have to google them
 ## lng 9.501785
 ## lat 56.26392
@@ -148,26 +142,32 @@ df_dk <- st_as_sf(dk_pop, sf_column_name = "geometry")
 dk_cent <- st_centroid(df_dk)
 dk_coords <- st_coordinates(dk_cent)
 
-dk_coords<-as.data.frame(dk_coords)
+dk_coords_next<-as.data.frame(dk_coords)
 
-dk_final <-
+dk_merge_coords <-
   df_dk %>%
-  cbind(dk_coords)
+  cbind(dk_coords_next)
 
+#merging the covid data into the dataset with the coords - apparently this can't be plotted (or takes an eternity)
+dk_final<-
+  dk_merge_coords%>%
+  merge(df)
 
-
+class(dk_final)
 ########### MAP###########
+
+#still using dk_merge_coords to plot the data - dk_final not working yet
 leaflet() %>%
   addTiles() %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(
-    data = dk_final, color = "#444444", weight = 1, smoothFactor = 0.5,
+    data = dk_merge_coords, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~ colorQuantile("YlOrRd", population)(population),
-    label = dk_final$kommune
+    label = dk_merge_coords$kommune
   ) %>%
-  addMarkers(data = dk_final, ~X, ~Y, popup = ~ as.character(population), label = ~ as.character(kommune)) # at the moment shows hjørrings population - it's because it's the last entry in the data.frame
+  addMarkers(data = dk_merge_coords, ~X, ~Y, popup = ~ as.character(population), label = ~ as.character(kommune)) 
 
 
 
