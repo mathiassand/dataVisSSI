@@ -117,7 +117,6 @@ register_google(key = "AIzaSyBEPq4eqOeI6-O5CjjAUcugcAj3oHSD9lE")
 #########################
 dk <- st_read("gadm36_DNK_2.shp")
 
-glimpse(dk)
 dk %>%
   ggplot() +
   geom_sf() +
@@ -145,15 +144,15 @@ dk_coords <- st_coordinates(dk_cent)
 dk_coords_next<-as.data.frame(dk_coords)
 
 dk_merge_coords <-
-  df_dk %>%
+  dsize %>%
   cbind(dk_coords_next)
 
-#merging the covid data into the dataset with the coords - apparently this can't be plotted (or takes an eternity)
-dk_final<-
-  dk_merge_coords%>%
-  merge(df)
+#merging the covid data into the dataset with the coords - apparently this can't be plotted (or takes an eternity), might too much data in the frame
+dk_merge_coords_test<-
+  df%>%
+  merge(dk_merge_coords)
 
-class(dk_final)
+class(dk_merge_coords_test)
 ########### MAP###########
 
 #still using dk_merge_coords to plot the data - dk_final not working yet
@@ -162,7 +161,7 @@ leaflet() %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(
-    data = dk_merge_coords, color = "#444444", weight = 1, smoothFactor = 0.5,
+    data = df_dk, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~ colorQuantile("YlOrRd", population)(population),
     label = dk_merge_coords$kommune
@@ -176,28 +175,28 @@ leaflet() %>%
 
 
 ######## OTHER TEST MAP STUFF########
-mapview(dk["NAME_2"], col.regions = sf.colors(10))
-
-tmap_mode("view")
-tm_shape(dk) + tm_fill("NAME_2", palette = sf.colors(5))
-
-
-folk1 <- readr::read_csv2("http://api.statbank.dk/v1/data/folk1a/CSV?OMR%C3%85DE=*")
-folk2 <- folk1[-c(1, 2, 33, 51, 74, 94), ]
-
-municipalityDK("INDHOLD", "OMRÅDE", data = folk2, legend = T) %>% addPolygons(
-  color = "#444444", weight = 1, smoothFactor = 0.5,
-  opacity = 1.0, fillOpacity = 0.5,
-  fillColor = ~ colorQuantile("YlOrRd", folk2$INDHOLD)(folk2$INDHOLD),
-  highlightOptions = highlightOptions(
-    color = "white", weight = 2,
-    bringToFront = TRUE
-  ),
-  label = folk2$OMRÅDE,
-  labelOptions = labelOptions(
-    style = list("font-weight" = "normal", padding = "3px 8px"),
-    textsize = "15px",
-    direction = "auto"
-  )
-)
+# mapview(dk["NAME_2"], col.regions = sf.colors(10))
+# 
+# tmap_mode("view")
+# tm_shape(dk) + tm_fill("NAME_2", palette = sf.colors(5))
+# 
+# 
+# folk1 <- readr::read_csv2("http://api.statbank.dk/v1/data/folk1a/CSV?OMR%C3%85DE=*")
+# folk2 <- folk1[-c(1, 2, 33, 51, 74, 94), ]
+# 
+# municipalityDK("INDHOLD", "OMRÅDE", data = folk2, legend = T) %>% addPolygons(
+#   color = "#444444", weight = 1, smoothFactor = 0.5,
+#   opacity = 1.0, fillOpacity = 0.5,
+#   fillColor = ~ colorQuantile("YlOrRd", folk2$INDHOLD)(folk2$INDHOLD),
+#   highlightOptions = highlightOptions(
+#     color = "white", weight = 2,
+#     bringToFront = TRUE
+#   ),
+#   label = folk2$OMRÅDE,
+#   labelOptions = labelOptions(
+#     style = list("font-weight" = "normal", padding = "3px 8px"),
+#     textsize = "15px",
+#     direction = "auto"
+#   )
+# )
 ```
