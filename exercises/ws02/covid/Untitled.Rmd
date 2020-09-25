@@ -58,7 +58,10 @@ dc %<>%
   mutate(
     casesDPer100k = casesDiagnosed / (population / 1000),
     dcr7d = roll_sum(casesDiagnosed, width = 7, min_obs = 1),
-    ir7dP100k = dcr7d / (population / 1000)
+    dcr7dPer100k = dcr7d / (population / 1000),
+    dcr7dPer100kCh1 = lag(dcr7dPer100k,1)-dcr7dPer100k,
+    dcr7dPer100kCh3 = lag(dcr7dPer100k,3)-dcr7dPer100k,
+    dcr7dPer100kCh7 = lag(dcr7dPer100k,7)-dcr7dPer100k
   )
 
 dt %<>%
@@ -66,7 +69,10 @@ dt %<>%
   mutate(
     testsPer100k = testsConducted / (population / 1000),
     tr7d = roll_sum(testsConducted, width = 7, min_obs = 1),
-    tr7dP100k = tr7d / (population / 1000)
+    tr7dP100k = tr7d / (population / 1000),
+    tr7dP100kkCh1 = lag(tr7dP100k,1)-tr7dP100k,
+    tr7dP100kCh3 = lag(tr7dP100k,3)-tr7dP100k,
+    tr7dP100kCh7 = lag(tr7dP100k,7)-tr7dP100k
   )
 
 # merge test with case data
@@ -166,8 +172,8 @@ one_date <- dk_merge_coords_test %>%
 
 rectIcon<-icons(
   iconUrl = ifelse(one_date$casesDPer100k < 0.028761804,
-    "C://Users//mathi/Documents/GitHub/dataVisSSI/exercises/ws02/covid/rect_green.png", 
-    "C://Users/mathi/Documents/GitHub/dataVisSSI/exercises/ws02/covid/rect_red.png"
+    "rect_green.png", 
+    "rect_red.png"
   ),
   iconWidth = sqrt(one_date$population) / 10, iconHeight= "22",
   
