@@ -164,6 +164,15 @@ one_date <- dk_merge_coords_test %>%
 
 ########### MAP###########
 
+rectIcon<-icons(
+  iconUrl = ifelse(one_date$casesDPer100k < 0.028761804,
+    "C://Users//mathi/Documents/GitHub/dataVisSSI/exercises/ws02/covid/rect_green.png", 
+    "C://Users/mathi/Documents/GitHub/dataVisSSI/exercises/ws02/covid/rect_red.png"
+  ),
+  iconWidth = sqrt(one_date$population) / 10, iconHeight= "22",
+  
+)
+
 # still using dk_merge_coords to plot the data - dk_final not working yet
 leaflet() %>%
   addTiles() %>%
@@ -172,15 +181,20 @@ leaflet() %>%
   addPolygons(
     data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
-    fillColor = ~ colorQuantile("YlOrRd", tr7d)(tr7d),
+    fillColor = ~ colorQuantile("YlOrRd", dcr7d)(dcr7d),
     label = df_dk_covid$kommune
-  ) %>% 
-  addRectangles(
-    data = one_date, ~X, ~Y, ~X, ~Y, 
-    weight = one_date$PosTestRate7d * 100, 
-    popup = ~ as.character(one_date$PosTestRate7d), 
-    label = ~ as.character(one_date$kommune)
-  ) 
+  ) %>%
+  #addRectangles(
+    #data = one_date, ~X, ~Y, ~X, ~Y,
+    #color="red",
+    #opacity = 1.0,
+   # weight = one_date$PosTestRate7d * 100, 
+    #popup = ~ as.character(one_date$PosTestRate7d), 
+    #label = ~ as.character(one_date$kommune)
+  addMarkers(
+    data = one_date, ~X, ~Y,
+    icon=rectIcon
+  )
 
 
 
