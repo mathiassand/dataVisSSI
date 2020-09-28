@@ -59,9 +59,9 @@ dc %<>%
     casesDPer100k = casesDiagnosed / (population / 1000),
     dcr7d = roll_sum(casesDiagnosed, width = 7, min_obs = 1),
     dcr7dPer100k = dcr7d / (population / 1000),
-    dcr7dPer100kCh1 = lag(dcr7dPer100k,1)-dcr7dPer100k,
-    dcr7dPer100kCh3 = lag(dcr7dPer100k,3)-dcr7dPer100k,
-    dcr7dPer100kCh7 = lag(dcr7dPer100k,7)-dcr7dPer100k
+    dcr7dPer100kCh1 = lag(dcr7dPer100k, 1) - dcr7dPer100k,
+    dcr7dPer100kCh3 = lag(dcr7dPer100k, 3) - dcr7dPer100k,
+    dcr7dPer100kCh7 = lag(dcr7dPer100k, 7) - dcr7dPer100k
   )
 
 dt %<>%
@@ -70,9 +70,9 @@ dt %<>%
     testsPer100k = testsConducted / (population / 1000),
     tr7d = roll_sum(testsConducted, width = 7, min_obs = 1),
     tr7dP100k = tr7d / (population / 1000),
-    tr7dP100kkCh1 = lag(tr7dP100k,1)-tr7dP100k,
-    tr7dP100kCh3 = lag(tr7dP100k,3)-tr7dP100k,
-    tr7dP100kCh7 = lag(tr7dP100k,7)-tr7dP100k
+    tr7dP100kkCh1 = lag(tr7dP100k, 1) - tr7dP100k,
+    tr7dP100kCh3 = lag(tr7dP100k, 3) - tr7dP100k,
+    tr7dP100kCh7 = lag(tr7dP100k, 7) - tr7dP100k
   )
 
 # merge test with case data
@@ -158,9 +158,9 @@ dk_merge_coords_test <-
   df %>%
   merge(dk_merge_coords)
 
-df_dk_covid<-
-  df%>%
-  filter(date_sample=="2020-03-14")%>%
+df_dk_covid <-
+  df %>%
+  filter(date_sample == "2020-03-14") %>%
   merge(df_dk)
 
 df_dk_covid <- st_as_sf(df_dk_covid, sf_column_name = "geometry")
@@ -168,43 +168,25 @@ df_dk_covid <- st_as_sf(df_dk_covid, sf_column_name = "geometry")
 one_date <- dk_merge_coords_test %>%
   filter(date_sample == "2020-03-14")
 
-#test<-
-  #df_dk_covid%>%
-  #filter out copenhagen here
-  #group_by(kommune)%>%
-  #mutate(
-    #lng_max = max(X),
-    #lng_min = min(X),
-  #)
+# test<-
+# df_dk_covid%>%
+# filter out copenhagen here
+# group_by(kommune)%>%
+# mutate(
+# lng_max = max(X),
+# lng_min = min(X),
+# )
 
 ########### MAP###########
 
-ch1_icon<-icons(
-  iconUrl = ifelse(one_date$casesDPer100k < 0.20698220,    
-    "rect_green.png", 
-    "rect_red.png"
-  ),
-  iconWidth = one_date$dcr7dPer100kCh1 + 20, iconHeight= "10"
-)
+change_icons <- iconList(
+  ch1_icon = makeIcon(ifelse(one_date$casesDPer100k < 0.2, "rect_green.png", "rect_red.png"), iconWidth = one_date$dcr7dPer100kCh1 + 20, iconHeight = "10"),
+  ch3_icon = makeIcon(ifelse(one_date$casesDPer100k < 0.2, "rect_green.png", "rect_red.png"), iconWidth = one_date$dcr7dPer100kCh3 + 20, iconHeight = "10"),
+  ch7_icon = makeIcon(ifelse(one_date$casesDPer100k < 0.2, "rect_green.png", "rect_red.png"), iconWidth = one_date$dcr7dPer100kCh7 + 20, iconHeight = "10")
+) # values in dcr7dperk100kch_1/3/7 are too small to get plottet - idk how to normalize
 
-ch3_icon<-icons(
-  iconUrl = ifelse(one_date$casesDPer100k < 0.20698220,    
-    "rect_green.png", 
-    "rect_red.png"
-  ),
-  iconWidth = one_date$dcr7dPer100kCh3 + 20, iconHeight= "10"
-)
 
-ch7_icon<-icons(
-  iconUrl = ifelse(one_date$casesDPer100k < 0.20698220,    
-    "rect_green.png", 
-    "rect_red.png"
-  ),
-  iconWidth = one_date$dcr7dPer100kCh7 + 20, iconHeight= "10"
-)
-#values in dcr7dperk100kch are too small to get plottet - idk how to normalize
 
-# still using dk_merge_coords to plot the data - dk_final not working yet
 leaflet() %>%
   addTiles() %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
@@ -212,26 +194,28 @@ leaflet() %>%
   addPolygons(
     data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
-    fillColor = ~ colorQuantile("YlOrRd", dcr7d)(dcr7d),
+    fillColor = ~ colorQuantile("YlOrRd", dcr7d)(dcr7d), # changing the municipality color based on a specific variable
     label = df_dk_covid$kommune
   ) %>%
-  #addRectangles(
-    #data = one_date, ~X, ~Y, ~X, ~Y,
-    #color="red",
-    #opacity = 1.0,
-   # weight = one_date$PosTestRate7d * 100, 
-    #popup = ~ as.character(one_date$PosTestRate7d), 
-    #label = ~ as.character(one_date$kommune)
+  # addRectangles(
+  # data = one_date, ~X, ~Y, ~X, ~Y,
+  # color="red",
+  # opacity = 1.0,
+  # weight = one_date$PosTestRate7d * 100,
+  # popup = ~ as.character(one_date$PosTestRate7d),
+  # label = ~ as.character(one_date$kommune)
   addMarkers(
     data = one_date, ~X, ~Y,
-    icon= ch1_icon
-  ) %>% addMarkers(
-    data=one_date, ~X, ~Y+0.02,
+    icon = ch1_icon
+  ) %>%
+  addMarkers(
+    data = one_date, ~X, ~ Y + 0.02, # off-setting the second marker by 0.02 latitude
     icon = ch3_icon
-  ) %>% addMarkers(
-    data=one_date, ~X, ~Y+0.04,
+  ) %>%
+  addMarkers(
+    data = one_date, ~X, ~ Y + 0.04,
     icon = ch7_icon
-  )
+  ) 
 
 
 
