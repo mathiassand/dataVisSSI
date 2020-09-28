@@ -191,12 +191,11 @@ df_one_date <- dk_merge_coords_test %>%
 #to later normalize
 a_one_date<-
   df_one_date%>%
-  group_by(kommune)%>%
   mutate(
     a_dcr7dPer100kCh1 = abs(dcr7dPer100kCh1),
     a_dcr7dPer100kCh3 = abs(dcr7dPer100kCh3),
     a_dcr7dPer100kCh7 = abs(dcr7dPer100kCh7)
-  )
+  ) %>% ungroup()
 
 #normalizing the change variables
  normality<-function(m){
@@ -206,19 +205,18 @@ a_one_date<-
 #can also use scale instead of my own function, but it is the same result...
 #not working atm
 
-one_date <-
-  a_one_date %>%
-  group_by(kommune) %>%
+ 
+a_one_date %>%
   mutate(
-    n_dcr7dPer100kCh1 = normalize(a_dcr7dPer100kCh1),
-    n_dcr7dPer100kCh3 = normalize(a_dcr7dPer100kCh3),
-    n_dcr7dPer100kCh7 = normalize(a_dcr7dPer100kCh7)
-  )
+    n_dcr7dPer100kCh1 = normality(a_dcr7dPer100kCh1),
+    n_dcr7dPer100kCh3 = normality(a_dcr7dPer100kCh3),
+    n_dcr7dPer100kCh7 = normality(a_dcr7dPer100kCh7)
+  ) %>% View()
 
 change_icons <- iconList(
-  ch1_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh1 <= 0, "rect_green.png", "rect_red.png"), iconWidth = one_date$dcr7dPer100kCh1, iconHeight = "10"),
-  ch3_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh3 <= 0, "rect_green.png", "rect_red.png"), iconWidth = one_date$dcr7dPer100kCh3, iconHeight = "10"),
-  ch7_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh7 <= 0, "rect_green.png", "rect_red.png"), iconWidth = one_date$dcr7dPer100kCh7, iconHeight = "10")
+  ch1_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh1 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh1, iconHeight = "10"),
+  ch3_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh3 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh3, iconHeight = "10"),
+  ch7_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh7 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh7, iconHeight = "10")
 )
 
 leaflet() %>%
@@ -245,6 +243,9 @@ leaflet() %>%
     data = one_date, ~X, ~ Y + 0.04,
     icon = ~ change_icons$ch1_icon,
     label = one_date$dcr7dPer100kCh1
+  ) %>% 
+  addPolylines(
+    data = one_date, ~X, ~Y, group = kommune
   )
 
 
