@@ -78,7 +78,7 @@ dt %<>%
 # merge test with case data
 df <- merge(dc, dt)
 
-df$PosTestRate7d <- df$ir7dP100k / df$tr7dP100k
+df$PosTestRate7d <- df$dcr7dPer100k / df$tr7dP100k
 
 # check there were no diagnosis without tests
 sum(df$casesDiagnosed > df$testsConducted)
@@ -168,16 +168,41 @@ df_dk_covid <- st_as_sf(df_dk_covid, sf_column_name = "geometry")
 one_date <- dk_merge_coords_test %>%
   filter(date_sample == "2020-03-14")
 
+#test<-
+  #df_dk_covid%>%
+  #filter out copenhagen here
+  #group_by(kommune)%>%
+  #mutate(
+    #lng_max = max(X),
+    #lng_min = min(X),
+  #)
+
 ########### MAP###########
 
-rectIcon<-icons(
-  iconUrl = ifelse(one_date$casesDPer100k < 0.028761804,
+ch1_icon<-icons(
+  iconUrl = ifelse(one_date$casesDPer100k < 0.20698220,    
     "rect_green.png", 
     "rect_red.png"
   ),
-  iconWidth = sqrt(one_date$population) / 10, iconHeight= "22",
-  
+  iconWidth = one_date$dcr7dPer100kCh1 + 20, iconHeight= "10"
 )
+
+ch3_icon<-icons(
+  iconUrl = ifelse(one_date$casesDPer100k < 0.20698220,    
+    "rect_green.png", 
+    "rect_red.png"
+  ),
+  iconWidth = one_date$dcr7dPer100kCh3 + 20, iconHeight= "10"
+)
+
+ch7_icon<-icons(
+  iconUrl = ifelse(one_date$casesDPer100k < 0.20698220,    
+    "rect_green.png", 
+    "rect_red.png"
+  ),
+  iconWidth = one_date$dcr7dPer100kCh7 + 20, iconHeight= "10"
+)
+#values in dcr7dperk100kch are too small to get plottet - idk how to normalize
 
 # still using dk_merge_coords to plot the data - dk_final not working yet
 leaflet() %>%
@@ -199,9 +224,14 @@ leaflet() %>%
     #label = ~ as.character(one_date$kommune)
   addMarkers(
     data = one_date, ~X, ~Y,
-    icon=rectIcon
+    icon= ch1_icon
+  ) %>% addMarkers(
+    data=one_date, ~X, ~Y+0.02,
+    icon = ch3_icon
+  ) %>% addMarkers(
+    data=one_date, ~X, ~Y+0.04,
+    icon = ch7_icon
   )
-
 
 
 
