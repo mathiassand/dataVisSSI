@@ -169,12 +169,12 @@ one_date <- dk_merge_coords_test %>%
   filter(date_sample == "2020-03-14")
 
 # test<-
-# df_dk_covid%>%
-# filter out copenhagen here
+# one_date%>%
+# #filter out copenhagen here
 # group_by(kommune)%>%
-# mutate(
-# lng_max = max(X),
-# lng_min = min(X),
+# summarize(
+# X_max = max(~X),
+# X_min = min(~X),
 # )
 
 ########### MAP###########
@@ -197,24 +197,20 @@ leaflet() %>%
     fillColor = ~ colorQuantile("YlOrRd", dcr7d)(dcr7d), # changing the municipality color based on a specific variable
     label = df_dk_covid$kommune
   ) %>%
-  # addRectangles(
-  # data = one_date, ~X, ~Y, ~X, ~Y,
-  # color="red",
-  # opacity = 1.0,
-  # weight = one_date$PosTestRate7d * 100,
-  # popup = ~ as.character(one_date$PosTestRate7d),
-  # label = ~ as.character(one_date$kommune)
   addMarkers(
     data = one_date, ~X, ~Y,
-    icon = ch1_icon
+    icon = ch7_icon,
+    label = one_date$dcr7dPer100kCh7
   ) %>%
   addMarkers(
     data = one_date, ~X, ~ Y + 0.02, # off-setting the second marker by 0.02 latitude
-    icon = ch3_icon
+    icon = ch3_icon, 
+    label = one_date$dcr7dPer100kCh3
   ) %>%
   addMarkers(
     data = one_date, ~X, ~ Y + 0.04,
-    icon = ch7_icon
+    icon = ch1_icon,
+    label = one_date$dcr7dPer100kCh1
   ) 
 
 
