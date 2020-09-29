@@ -201,9 +201,6 @@ a_one_date<-
  normality<-function(m){
    (m - min(m))/(max(m)-min(m))
  }
- 
-#can also use scale instead of my own function, but it is the same result...
-#not working atm
 
  
 a_one_date %>%
@@ -211,15 +208,50 @@ a_one_date %>%
     n_dcr7dPer100kCh1 = normality(a_dcr7dPer100kCh1),
     n_dcr7dPer100kCh3 = normality(a_dcr7dPer100kCh3),
     n_dcr7dPer100kCh7 = normality(a_dcr7dPer100kCh7)
-  ) %>% View()
+  ) 
 
-change_icons <- iconList(
-  ch1_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh1 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh1, iconHeight = "10"),
-  ch3_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh3 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh3, iconHeight = "10"),
-  ch7_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh7 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh7, iconHeight = "10")
-)
 
-leaflet() %>%
+
+# change_icons <- iconList(
+#   ch1_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh1 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh1, iconHeight = "10"),
+#   ch3_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh3 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh3, iconHeight = "10"),
+#   ch7_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh7 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh7, iconHeight = "10")
+# )
+
+a_one_date %<>%
+  mutate(
+    y_dcr7dPer100kCh1 = ((plogis(dcr7dPer100kCh1*10)-0.5)*188),
+    y_dcr7dPer100kCh3 = ((plogis(dcr7dPer100kCh3*10)-0.5)*188),
+    y_dcr7dPer100kCh7 = ((plogis(dcr7dPer100kCh7*10)-0.5)*188),
+    custlng_dcr7dPer100kCh1 = cos(y_dcr7dPer100kCh1),
+    custlng_dcr7dPer100kCh3 = cos(y_dcr7dPer100kCh3),
+    custlng_dcr7dPer100kCh7 = cos(y_dcr7dPer100kCh7),
+    custlat_dcr7dPer100kCh1 = sin(y_dcr7dPer100kCh1),
+    custlat_dcr7dPer100kCh3 = sin(y_dcr7dPer100kCh3),
+    custlat_dcr7dPer100kCh7 = sin(y_dcr7dPer100kCh7)
+  ) 
+
+df_map<-
+  a_one_date%>%
+  select(kommune, population, X, Y,
+         custlng_dcr7dPer100kCh1,
+         custlng_dcr7dPer100kCh3,
+         custlng_dcr7dPer100kCh7,
+         custlat_dcr7dPer100kCh1,
+         custlat_dcr7dPer100kCh3,
+         custlat_dcr7dPer100kCh7) %>%
+  mutate(
+    custlng_Ch1 = X + normality(abs(custlng_dcr7dPer100kCh1)),
+    custlng_Ch3 = X + normality(abs(custlng_dcr7dPer100kCh3)),
+    custlng_Ch7 = X + normality(abs(custlng_dcr7dPer100kCh7)),
+    custlat_Ch1 = Y + normality(abs(custlat_dcr7dPer100kCh1)),
+    custlat_Ch3 = Y + normality(abs(custlat_dcr7dPer100kCh3)),
+    custlat_Ch7 = Y + normality(abs(custlat_dcr7dPer100kCh7)),
+  )
+
+
+
+myMap<-leaflet() %>%
   addTiles() %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
@@ -228,53 +260,66 @@ leaflet() %>%
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~ colorQuantile("YlOrRd", dcr7d)(dcr7d), # changing the municipality color based on a specific variable
     label = df_dk_covid$kommune
-  ) %>%
-  addMarkers(
-    data = one_date, ~X, ~Y,
-    icon = ~ change_icons$ch7_icon,
-    label = one_date$dcr7dPer100kCh7
-  ) %>%
-  addMarkers(
-    data = one_date, ~X, ~ Y + 0.02, # off-setting the second marker by 0.02 latitude
-    icon = ~ change_icons$ch3_icon,
-    label = one_date$dcr7dPer100kCh3
-  ) %>%
-  addMarkers(
-    data = one_date, ~X, ~ Y + 0.04,
-    icon = ~ change_icons$ch1_icon,
-    label = one_date$dcr7dPer100kCh1
-  ) %>% 
-  addPolylines(
-    data = one_date, ~X, ~Y, group = kommune
   )
 
+  for (i in 1:nrow(df_map))
+  myMap<-myMap%>%
+  addPolylines(
+    lng=c(df_map[i,]$X, df_map[i,]$custlng_Ch1), lat=c(df_map[i,]$Y, df_map[i,]$custlat_Ch1),
+    #color=ifelse(a_one_date$dcr7dPer100kCh1 < 0, "green", "red"),
+    #opacity = ifelse(a_one_date$dcr7dPer100kCh1 == 0, 0, 0.5)
+  ) %>%
+  addPolylines(
+    lng=c(df_map[i,]$X, df_map[i,]$custlng_Ch3), lat=c(df_map[i,]$Y+0.02, df_map[i,]$custlat_Ch3),
+    #color= ifelse(a_one_date$dcr7dPer100kCh3 < 0, "green", "red"),
+    #opacity = ifelse(a_one_date$dcr7dPer100kCh3 == 0, 0, 0.5)
+  ) %>%
+  addPolylines(
+    lng=c(df_map[i,]$X, df_map[i,]$custlng_Ch7), lat=c(df_map[i,]$Y+0.04, df_map[i,]$custlat_Ch7),
+    #color=ifelse(a_one_date$dcr7dPer100kCh7 < 0, "green", "red"),
+    #opacity = ifelse(a_one_date$dcr7dPer100kCh7 == 0, 0, 0.5)
+  )
+  myMap
+  
+  
+  
+  # addRectangles(
+  #   data=df_map, ~X, ~Y, ~custlng_Ch1, ~Y,
+  #   group=a_one_date$kommune,
+  #   color=ifelse(a_one_date$dcr7dPer100kCh1 < 0, "green", "red"),
+  #   opacity = ifelse(a_one_date$dcr7dPer100kCh1 == 0, 0, 0.5)
+  # ) %>%
+  # addRectangles(
+  #   data=df_map, ~X, ~Y+0.02, ~custlng_Ch3, ~Y+0.02,
+  #   group=a_one_date$kommune,
+  #   color= ifelse(a_one_date$dcr7dPer100kCh3 < 0, "green", "red"),
+  #   opacity = ifelse(a_one_date$dcr7dPer100kCh3 == 0, 0, 0.5)
+  # ) %>%
+  # addRectangles(
+  #   data=df_map, ~X, ~Y+0.04, ~custlng_Ch7, ~Y+0.04,
+  #   group=a_one_date$kommune,
+  #   color=ifelse(a_one_date$dcr7dPer100kCh7 < 0, "green", "red"),
+  #   opacity = ifelse(a_one_date$dcr7dPer100kCh7 == 0, 0, 0.5)
+  # )
 
 
 
+  # addMarkers(
+  #   data = one_date, ~X, ~Y,
+  #   icon = ~ change_icons$ch7_icon,
+  #   label = one_date$dcr7dPer100kCh7
+  # ) %>%
+  # addMarkers(
+  #   data = one_date, ~X, ~ Y + 0.02, # off-setting the second marker by 0.02 latitude
+  #   icon = ~ change_icons$ch3_icon,
+  #   label = one_date$dcr7dPer100kCh3
+  # ) %>%
+  # addMarkers(
+  #   data = one_date, ~X, ~ Y + 0.04,
+  #   icon = ~ change_icons$ch1_icon,
+  #   label = one_date$dcr7dPer100kCh1
+  # ) %>% 
 
-######## OTHER TEST MAP STUFF########
-# mapview(dk["NAME_2"], col.regions = sf.colors(10))
-#
-# tmap_mode("view")
-# tm_shape(dk) + tm_fill("NAME_2", palette = sf.colors(5))
-#
-#
-# folk1 <- readr::read_csv2("http://api.statbank.dk/v1/data/folk1a/CSV?OMR%C3%85DE=*")
-# folk2 <- folk1[-c(1, 2, 33, 51, 74, 94), ]
-#
-# municipalityDK("INDHOLD", "OMRÅDE", data = folk2, legend = T) %>% addPolygons(
-#   color = "#444444", weight = 1, smoothFactor = 0.5,
-#   opacity = 1.0, fillOpacity = 0.5,
-#   fillColor = ~ colorQuantile("YlOrRd", folk2$INDHOLD)(folk2$INDHOLD),
-#   highlightOptions = highlightOptions(
-#     color = "white", weight = 2,
-#     bringToFront = TRUE
-#   ),
-#   label = folk2$OMRÅDE,
-#   labelOptions = labelOptions(
-#     style = list("font-weight" = "normal", padding = "3px 8px"),
-#     textsize = "15px",
-#     direction = "auto"
-#   )
-# )
+
+
 ```
