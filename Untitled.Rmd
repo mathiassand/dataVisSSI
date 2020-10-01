@@ -104,6 +104,8 @@ library(leaflet)
 library(dplyr)
 library(sf)
 library(BBmisc)
+library(htmltools)
+library(htmlwidgets)
 
 #########################
 ######## LEAFLET ########
@@ -185,8 +187,42 @@ a_one_date %<>%
   ) 
 
 
+
+
+rotatedMarker <-
+  htmlDependency( name = "Leaflet.rotatedMarker" # note: this .js file has to be copied and stored in your current working directory
+                  , version = "0.1.2"
+                  , src = normalizePath( path = getwd() )
+                  , script = "leaflet.rotatedMarker.js" )
+
+registerPlugin <- function(map, plugin) {
+  map$dependencies <- c(map$dependencies, list(plugin))
+  map
+}
+
+getColor <- function(a_one_date) {
+  sapply(a_one_date$dcr7dPer100kCh1Col, function(dcr7dPer100kCh1Col) {
+  if(dcr7dPer100kCh1Col <= 1) {
+    "#FF0000"
+  } else if(dcr7dPer100kCh1Col == 0) {
+    "#00FFFF"
+  } else {
+    "#00FF00"
+  } })
+}
+
+arrow.icon <-
+  makeIcon(
+    iconUrl = "iconmonstr-arrow-24.svg",
+    iconWidth = 10,
+    iconHeight = 10,
+    #markerColor = getColor(a_one_date)
+  )
+
+
 myMap_1<-leaflet() %>%
   addTiles() %>%
+  registerPlugin(plugin = rotatedMarker ) %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(
@@ -194,12 +230,18 @@ myMap_1<-leaflet() %>%
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k), # changing the municipality color based on a specific variable
     label = df_dk_covid$kommune
-  )
+  ) %>% addMarkers(~custlng_Ch1, ~custlat_Ch1, icon=arrow.icon, 
+                   data=a_one_date, 
+                   options = markerOptions(rotationAngle = ~y_dcr7dPer100kCh1)
+                   )
+#%>% 
+ # addPolylines(lng=~X, lat=~Y, data=a_one_date)%>%
+  #addPolylines(arrow_data[,"x"], lat=arrow_data[,"y"])
 
     for(i in 1:nrow(a_one_date)){
       myMap_1 = myMap_1 %>%
         #addCircles(lng= ~X, lat = ~Y, radius = ~custlng_Ch1,data = a_one_date[i,], weight=1)%>%
-        #addMarkers(~custlng_Ch1, ~custlat_Ch1, data=a_one_date)%>%
+        #
         addPolylines(data = a_one_date[i,],
                      lng= ~ c(X, custlng_Ch1),
                      lat= ~ c(Y, custlat_Ch1),
