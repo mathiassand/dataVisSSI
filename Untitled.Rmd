@@ -100,38 +100,16 @@ sum(df$casesDiagnosed > df$testsConducted)
 
 
 ```{r}
-devtools::install_github("sebastianbarfort/mapDK")
-devtools::install_github("56north/leafletDK")
-
-library(mapDK)
-library(mapview)
 library(leaflet)
-library(leafletDK)
-library(tmap)
-library(stringr)
-library(maps)
-library(ggmap)
-library(rgdal)
 library(dplyr)
-library(tmap)
-library(spData)
 library(sf)
-library(sp)
-library(geojsonR)
 library(BBmisc)
-# tmap_mode("view")
-
-register_google(key = "AIzaSyBEPq4eqOeI6-O5CjjAUcugcAj3oHSD9lE")
 
 #########################
 ######## LEAFLET ########
 #########################
 dk <- st_read("gadm36_DNK_2.shp")
 
-dk %>%
-  ggplot() +
-  geom_sf() +
-  theme_bw()
 # cleaning some names that differed in the datasets
 dk$NAME_2 <- str_replace(dk$NAME_2, "Århus", "Aarhus")
 dk$NAME_2 <- str_replace(dk$NAME_2, "Høje Taastrup", "Høje-Taastrup")
@@ -141,10 +119,6 @@ dk$NAME_2 <- str_replace(dk$NAME_2, "Vesthimmerland", "Vesthimmerlands")
 dk_pop <-
   dsize %>%
   left_join(dk, by = c("kommune" = "NAME_2"))
-
-## DK coordinates, so i dont have to google them
-## lng 9.501785
-## lat 56.26392
 
 # transforming the df into a shapefile again, that makes us use the geometry points
 df_dk <- st_as_sf(dk_pop, sf_column_name = "geometry")
@@ -177,54 +151,20 @@ df_dk_covid <-
 df_dk_covid <- st_as_sf(df_dk_covid, sf_column_name = "geometry")
 
 #filtering for a single date to not cause overplotting
-df_one_date <- dk_merge_coords_test %>%
+a_one_date <- dk_merge_coords_test %>%
   filter(date_sample == "2020-03-14")
-
-# test<-
-# one_date%>%
-# #filter out copenhagen here
-# group_by(kommune)%>%
-# summarize(
-# X_max = max(~X),
-# X_min = min(~X),
-# )
 
 ########### MAP###########
 
 #getting the absolute values - converting the negative values into 0
 #to later normalize
-a_one_date<-
-  df_one_date%>%
-  mutate(
-    a_dcr7dPer100kCh1 = abs(dcr7dPer100kCh1),
-    a_dcr7dPer100kCh3 = abs(dcr7dPer100kCh3),
-    a_dcr7dPer100kCh7 = abs(dcr7dPer100kCh7)
-  ) %>% ungroup()
 
-#normalizing the change variables
- normality<-function(m){
-   (m - min(m))/(max(m)-min(m))
- }
-
- 
-a_one_date %>%
-  mutate(
-    n_dcr7dPer100kCh1 = normality(a_dcr7dPer100kCh1),
-    n_dcr7dPer100kCh3 = normality(a_dcr7dPer100kCh3),
-    n_dcr7dPer100kCh7 = normality(a_dcr7dPer100kCh7)
-  ) 
-
-
-
-# change_icons <- iconList(
-#   ch1_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh1 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh1, iconHeight = "10"),
-#   ch3_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh3 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh3, iconHeight = "10"),
-#   ch7_icon = makeIcon(ifelse(one_date$dcr7dPer100kCh7 <= 0, "rect_green.png", "rect_red.png"), iconWidth = a_one_date$n_dcr7dPer100kCh7, iconHeight = "10")
-# )
 scaleFactor = 20
 
 a_one_date$dcr7dPer100kCh1Col<-plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh1),from=c(1,0,-1),to=c("#FF0000", "#00FFFF","#00FF00"))
-
+a_one_date$dcr7dPer100kCh3Col<-plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh3),from=c(1,0,-1),to=c("#FF0000", "#00FFFF","#00FF00"))
+a_one_date$dcr7dPer100kCh7Col<-plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh7),from=c(1,0,-1),to=c("#FF0000", "#00FFFF","#00FF00"))
+  
 a_one_date %<>%
   mutate(
     y_dcr7dPer100kCh1 = (plogis(abs(dcr7dPer100kCh1)*10)-0.5)*188,
@@ -244,27 +184,8 @@ a_one_date %<>%
     custlat_Ch7 = Y + sign(dcr7dPer100kCh7)*(custlat_dcr7dPer100kCh7)
   ) 
 
-# df_map<-
-#   a_one_date%>%
-#   select(kommune, population, X, Y,
-#          custlng_dcr7dPer100kCh1,
-#          custlng_dcr7dPer100kCh3,
-#          custlng_dcr7dPer100kCh7,
-#          custlat_dcr7dPer100kCh1,
-#          custlat_dcr7dPer100kCh3,
-#          custlat_dcr7dPer100kCh7) %>%
-#   mutate(
-#     custlng_Ch1 = X + (abs(custlng_dcr7dPer100kCh1)),
-#     custlng_Ch3 = X + (abs(custlng_dcr7dPer100kCh3)),
-#     custlng_Ch7 = X + (abs(custlng_dcr7dPer100kCh7)),
-#     custlat_Ch1 = Y + (abs(custlat_dcr7dPer100kCh1)),
-#     custlat_Ch3 = Y + (abs(custlat_dcr7dPer100kCh3)),
-#     custlat_Ch7 = Y + (abs(custlat_dcr7dPer100kCh7)),
-#   )
 
-
-
-myMap<-leaflet() %>%
+myMap_1<-leaflet() %>%
   addTiles() %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
@@ -274,100 +195,59 @@ myMap<-leaflet() %>%
     fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k), # changing the municipality color based on a specific variable
     label = df_dk_covid$kommune
   )
-# 
-# addPolylines(lng = currentGeoData[c("CustLon","SerCenterLon")], 
-#                    lat = currentGeoData[c("CustLat","SerCenterLat")],
-#                    color = "red")
-
-#also tried with dots over two lines per kommune didn't work
-# long<- a_one_date %>% 
-#   select(kommune,X,custlng_Ch1) %>%
-#   pivot_longer(cols=!(kommune),names_to="longType",values_to = "long") %>% select (-longType)
-# lat<-a_one_date %>% 
-#   select(kommune,Y,custlat_Ch1) %>%
-#   pivot_longer(cols=!(kommune),names_to="longType",values_to = "lat") %>% select (-longType)
-# ll <- cbind(lat,long=long$long)
-# a_one_date<-merge(ll,a_one_date)
 
     for(i in 1:nrow(a_one_date)){
-      myMap = myMap %>%
-        # addCircleMarkers(lng= ~X, lat = ~Y, radius = .3,data = a_one_date[i,])%>%
+      myMap_1 = myMap_1 %>%
+        #addCircles(lng= ~X, lat = ~Y, radius = ~custlng_Ch1,data = a_one_date[i,], weight=1)%>%
+        #addMarkers(~custlng_Ch1, ~custlat_Ch1, data=a_one_date)%>%
         addPolylines(data = a_one_date[i,],
                      lng= ~ c(X, custlng_Ch1),
                      lat= ~ c(Y, custlat_Ch1),
                      color = ~dcr7dPer100kCh1Col,
                      weight = 4)
     }
-myMap
+myMap_1
 
-  #   lapply(list(a_one_date$kommune[a_one_date$kommune=="Aalborg"]), function(x) {
-  #           addPolylines(myMap, 
-  #                        data = a_one_date[a_one_date$kommune == x, ], 
-  #                        lng = ~long, 
-  #                        lat = ~lat,
-  #                        color = 'red',
-  #                         weight = 2) })
-  #   
-  # 
-  #   addPolylines(data=a_one_date[a_one_date$kommune %in% c("Aalborg"),], 
-  #   lng=~c(X, custlng_Ch1), lat=~c(Y, custlat_Ch1),
-  #                    color = 'red',
-  #                    weight = 2)
-  # 
-  #   #color=ifelse(a_one_date$dcr7dPer100kCh1 < 0, "green", "red"),
-  #   #opacity = ifelse(a_one_date$dcr7dPer100kCh1 == 0, 0, 0.5)
-  # ) %>%
-  # addPolylines(
-  #   lng=c(df_map[i,]$X, df_map[i,]$custlng_Ch3), lat=c(df_map[i,]$Y+0.02, df_map[i,]$custlat_Ch3),
-  #   #color= ifelse(a_one_date$dcr7dPer100kCh3 < 0, "green", "red"),
-  #   #opacity = ifelse(a_one_date$dcr7dPer100kCh3 == 0, 0, 0.5)
-  # ) %>%
-  # addPolylines(
-  #   lng=c(df_map[i,]$X, df_map[i,]$custlng_Ch7), lat=c(df_map[i,]$Y+0.04, df_map[i,]$custlat_Ch7),
-  #   #color=ifelse(a_one_date$dcr7dPer100kCh7 < 0, "green", "red"),
-  #   #opacity = ifelse(a_one_date$dcr7dPer100kCh7 == 0, 0, 0.5)
-  # #)
-  myMap
-  
-  
-  
-  # addRectangles(
-  #   data=df_map, ~X, ~Y, ~custlng_Ch1, ~Y,
-  #   group=a_one_date$kommune,
-  #   color=ifelse(a_one_date$dcr7dPer100kCh1 < 0, "green", "red"),
-  #   opacity = ifelse(a_one_date$dcr7dPer100kCh1 == 0, 0, 0.5)
-  # ) %>%
-  # addRectangles(
-  #   data=df_map, ~X, ~Y+0.02, ~custlng_Ch3, ~Y+0.02,
-  #   group=a_one_date$kommune,
-  #   color= ifelse(a_one_date$dcr7dPer100kCh3 < 0, "green", "red"),
-  #   opacity = ifelse(a_one_date$dcr7dPer100kCh3 == 0, 0, 0.5)
-  # ) %>%
-  # addRectangles(
-  #   data=df_map, ~X, ~Y+0.04, ~custlng_Ch7, ~Y+0.04,
-  #   group=a_one_date$kommune,
-  #   color=ifelse(a_one_date$dcr7dPer100kCh7 < 0, "green", "red"),
-  #   opacity = ifelse(a_one_date$dcr7dPer100kCh7 == 0, 0, 0.5)
-  # )
+myMap_3<-leaflet() %>%
+  addTiles() %>%
+  setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(
+    data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k), # changing the municipality color based on a specific variable
+    label = df_dk_covid$kommune
+  )
+
+    for(i in 1:nrow(a_one_date)){
+      myMap_3 = myMap_3 %>%
+        addPolylines(data = a_one_date[i,],
+                     lng= ~ c(X, custlng_Ch3),
+                     lat= ~ c(Y, custlat_Ch3),
+                     color = ~dcr7dPer100kCh3Col,
+                     weight = 4)
+    }
+myMap_3
+
+myMap_7<-leaflet() %>%
+  addTiles() %>%
+  setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(
+    data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k), # changing the municipality color based on a specific variable
+    label = df_dk_covid$kommune
+  )
 
 
-
-  # addMarkers(
-  #   data = one_date, ~X, ~Y,
-  #   icon = ~ change_icons$ch7_icon,
-  #   label = one_date$dcr7dPer100kCh7
-  # ) %>%
-  # addMarkers(
-  #   data = one_date, ~X, ~ Y + 0.02, # off-setting the second marker by 0.02 latitude
-  #   icon = ~ change_icons$ch3_icon,
-  #   label = one_date$dcr7dPer100kCh3
-  # ) %>%
-  # addMarkers(
-  #   data = one_date, ~X, ~ Y + 0.04,
-  #   icon = ~ change_icons$ch1_icon,
-  #   label = one_date$dcr7dPer100kCh1
-  # ) %>% 
-
-
-
+    for(i in 1:nrow(a_one_date)){
+      myMap_7 = myMap_7 %>%
+        addPolylines(data = a_one_date[i,],
+                     lng= ~ c(X, custlng_Ch7),
+                     lat= ~ c(Y, custlat_Ch7),
+                     color = ~dcr7dPer100kCh7Col,
+                     weight = 4)
+    }
+myMap_7
 ```
