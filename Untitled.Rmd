@@ -220,7 +220,7 @@ a_one_date %<>%
 
 myMap_1 <- leaflet() %>%
   addTiles() %>%
-  registerPlugin(plugin = rotatedMarker) %>%
+  # registerPlugin(plugin = rotatedMarker) %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(
