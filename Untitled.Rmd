@@ -80,6 +80,8 @@ dt %<>%
   )
 
 # merge test with case data
+# samsø doesn't exist in the dc dataset, which is why we cannot plot anything from it on the interactive map,
+# as we are only plotting changes in the confirmed cases (dc), and not tests conducted (dt)
 df <- merge(dc, dt)
 
 df$PosTestRate7d <- df$dcr7dPer100k / df$tr7dP100k
@@ -193,7 +195,7 @@ a_one_date %<>%
 #     src = normalizePath(path = getwd()),
 #     script = "leaflet.rotatedMarker.js"
 #   )
-# 
+#
 # registerPlugin <- function(map, plugin) {
 #   map$dependencies <- c(map$dependencies, list(plugin))
 #   map
@@ -228,7 +230,7 @@ myMap_1 <- leaflet() %>%
     opacity = 1.0, fillOpacity = 0.5,
     fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k), # changing the municipality color based on a specific variable
     label = df_dk_covid$kommune
-  ) 
+  ) %>% addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date, weight = 1, stroke = F, fillOpacity = .5, color = "#808080")
 # %>%
 #   addMarkers(~custlng_Ch1, ~custlat_Ch1,
 #     icon = arrow.icon,
@@ -241,7 +243,7 @@ myMap_1 <- leaflet() %>%
 
 for (i in 1:nrow(a_one_date)) {
   myMap_1 <- myMap_1 %>%
-    addCircles(lng= ~X, lat = ~Y, radius = 1, data = a_one_date[i,], weight=10)%>%
+    #addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date[i, ], weight = 1, group = "Change since the day before", stroke = F) %>%
     #
     addPolylines(
       data = a_one_date[i, ],
@@ -249,13 +251,14 @@ for (i in 1:nrow(a_one_date)) {
       lat = ~ c(Y, custlat_Ch1),
       color = ~dcr7dPer100kCh1Col,
       weight = 4,
-      group = "1 day change"
-    ) 
+      group = "Change since the day before",
+      #popup = "Change since the day before",
+    )
 }
 
 for (i in 1:nrow(a_one_date)) {
   myMap_1 <- myMap_1 %>%
-    addCircles(lng= ~X, lat = ~Y, radius = 1, data = a_one_date[i,], weight=10)%>%
+    #addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date[i, ], weight = 1, group = "Change the last 3 days", stroke = F) %>%
     #
     addPolylines(
       data = a_one_date[i, ],
@@ -263,13 +266,14 @@ for (i in 1:nrow(a_one_date)) {
       lat = ~ c(Y, custlat_Ch3),
       color = ~dcr7dPer100kCh3Col,
       weight = 4,
-      group = "3 day change"
-    ) 
+      group = "Change the last 3 days",
+      #popup = "Change the last 3 days"
+    )
 }
 
 for (i in 1:nrow(a_one_date)) {
   myMap_1 <- myMap_1 %>%
-    addCircles(lng= ~X, lat = ~Y, radius = 1, data = a_one_date[i,], weight=10)%>%
+    #addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date[i, ], weight = 1, stroke = F) %>%
     #
     addPolylines(
       data = a_one_date[i, ],
@@ -277,15 +281,14 @@ for (i in 1:nrow(a_one_date)) {
       lat = ~ c(Y, custlat_Ch7),
       color = ~dcr7dPer100kCh7Col,
       weight = 4,
-      group = "7 day change"
-    ) 
+      group = "Change the last 7 days",
+      #popup = "Change the last 7 days"
+    )
 }
 
-    myMap_1%>%
-      addLayersControl(
-        overlayGroups = c("1 day change", "3 day change", "7 day change"),
-        options = layersControlOptions(collapsed = FALSE),
-        
-  ) 
-  
+myMap_1 %>%
+  addLayersControl(
+    overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
+    options = layersControlOptions(collapsed = FALSE),
+  )
 ```
