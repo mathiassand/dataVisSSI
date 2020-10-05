@@ -147,16 +147,23 @@ dk_merge_coords_test <-
 # merging the covid data into the shapefile to plot it
 df_dk_covid <-
   df %>%
-  filter(date_sample == "2020-03-14") %>%
+  filter(date_sample == "2020-09-17") %>%
   merge(df_dk)
 
 # to plot the data it needs to be a shapefile (sf) again - creating shapefile
 # and specifying where it should take sf data from
-df_dk_covid <- st_as_sf(df_dk_covid, sf_column_name = "geometry")
+df_dk_covid <- 
+  st_as_sf(df_dk_covid, sf_column_name = "geometry")
+
+#making another sf to plot copenhagen as a seperate map
+df_cph_covid<-
+  df_dk_covid%>%
+  filter(NAME_1=="Hovedstaden")
 
 # filtering for a single date to not cause overplotting
 a_one_date <- dk_merge_coords_test %>%
-  filter(date_sample == "2020-03-14")
+  filter(date_sample == "2020-09-17")
+
 
 ########### MAP###########
 
@@ -188,10 +195,22 @@ a_one_date %<>%
     custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
   )
 
+
+# creating one for cph only as well
+name_1<-df_dk_covid%>%
+  select(kommune, NAME_1)
+
+a_cph_date <- a_one_date %>%
+  left_join(name_1)
+
+a_cph_date <- a_cph_date %>%
+  filter(NAME_1=="Hovedstaden")
+
+
 # rotatedMarker <-
 #   htmlDependency(
 #     name = "Leaflet.rotatedMarker" # note: this .js file has to be copied and stored in your current working directory
-#     , version = "0.1.2",
+#     , version = "0.1.2",  
 #     src = normalizePath(path = getwd()),
 #     script = "leaflet.rotatedMarker.js"
 #   )
@@ -221,10 +240,8 @@ a_one_date %<>%
 #   )
 
 myMap_1 <- leaflet() %>%
-  addTiles() %>%
   # registerPlugin(plugin = rotatedMarker) %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(
     data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
@@ -290,5 +307,81 @@ myMap_1 %>%
   addLayersControl(
     overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
     options = layersControlOptions(collapsed = FALSE),
-  )
+  ) 
+
+myMap_2 <- leaflet() %>%
+  # registerPlugin(plugin = rotatedMarker) %>%
+  setView(lng = 12.45, lat = 55.85, zoom = 9) %>%
+  #addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(
+    data = df_cph_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
+    opacity = 1.0, fillOpacity = 0.5,
+    fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k), # changing the municipality color based on a specific variable
+    label = df_cph_covid$kommune
+  ) %>% addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_cph_date, weight = 1, stroke = F, fillOpacity = .5, color = "#808080")
+# %>%
+#   addMarkers(~custlng_Ch1, ~custlat_Ch1,
+#     icon = arrow.icon,
+#     data = a_one_date,
+#     options = markerOptions(rotationAngle = ~y_dcr7dPer100kCh1)
+#   )
+# %>%
+# addPolylines(lng=~X, lat=~Y, data=a_one_date)%>%
+# addPolylines(arrow_data[,"x"], lat=arrow_data[,"y"])
+
+for (i in 1:nrow(a_cph_date)) {
+  myMap_2 <- myMap_2 %>%
+    #addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date[i, ], weight = 1, group = "Change since the day before", stroke = F) %>%
+    #
+    addPolylines(
+      data = a_cph_date[i, ],
+      lng = ~ c(X, custlng_Ch1),
+      lat = ~ c(Y, custlat_Ch1),
+      color = ~dcr7dPer100kCh1Col,
+      weight = 4,
+      group = "Change since the day before",
+      #popup = "Change since the day before",
+    )
+}
+
+for (i in 1:nrow(a_cph_date)) {
+  myMap_2 <- myMap_2 %>%
+    #addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date[i, ], weight = 1, group = "Change the last 3 days", stroke = F) %>%
+    #
+    addPolylines(
+      data = a_cph_date[i, ],
+      lng = ~ c(X, custlng_Ch3),
+      lat = ~ c(Y, custlat_Ch3),
+      color = ~dcr7dPer100kCh3Col,
+      weight = 4,
+      group = "Change the last 3 days",
+      #popup = "Change the last 3 days"
+    )
+}
+
+for (i in 1:nrow(a_cph_date)) {
+  myMap_2 <- myMap_2 %>%
+    #addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date[i, ], weight = 1, stroke = F) %>%
+    #
+    addPolylines(
+      data = a_cph_date[i, ],
+      lng = ~ c(X, custlng_Ch7),
+      lat = ~ c(Y, custlat_Ch7),
+      color = ~dcr7dPer100kCh7Col,
+      weight = 4,
+      group = "Change the last 7 days",
+      #popup = "Change the last 7 days"
+    )
+}
+
+myMap_2 %>%
+  addLayersControl(
+    overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
+    options = layersControlOptions(collapsed = FALSE),
+  ) 
+
+
+
+
+
 ```
