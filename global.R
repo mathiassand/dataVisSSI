@@ -19,7 +19,7 @@ ProcessData<-function(dc){
   dc() %<>%
     pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
   
-  sum(is.na(dc()()$casesDiagnosed))
+  sum(is.na(dc$casesDiagnosed))
   
   dsize <- dsize %>%
     select(contains("Kom"), Befolkningstal) %>%
@@ -27,9 +27,9 @@ ProcessData<-function(dc){
     mutate(population = population * 1000) %>%
     select(-kID)
   
-  dc()[!(dc()$kommune %in% dsize$kommune), ]$kommune
-  dc()$kommune <- str_replace(dc()$kommune, "Copenhagen", "København")
-  dc() <- merge(dc(), dsize)
+  dc[!(dc$kommune %in% dsize$kommune), ]$kommune
+  dc$kommune <- str_replace(dc$kommune, "Copenhagen", "København")
+  dc <- merge(dc, dsize)
   
   dc() %<>%
     group_by(kommune) %>%

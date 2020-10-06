@@ -23,16 +23,17 @@ shinyServer(function(input, output) {
           
           dc <- read.csv(inFile$datapath, header=input$header, sep=input$sep, quote=input$quote)
           
-          ProcessData(dc)
         })
         
-        
+        finalInput<-reactive({
+            ProcessData(dataInput())
+        })
         
         output$myMap <- renderLeaflet({
             # Use leaflet() here, and only include aspects of the map that
             # won't need to change dynamically (at least, not unless the
             # entire map is being torn down and recreated).
-          if(is.null(dataInput()))
+          if(is.null(finalInput()))
           {
             return(leaflet() %>%
                 addTiles() %>%
@@ -40,7 +41,7 @@ shinyServer(function(input, output) {
                 addProviderTiles(providers$CartoDB.Positron))
           }
           else{
-            leaflet(dataInput()) %>% 
+            leaflet(finalInput()) %>% 
               addPolygons(
                  data = dk, color = "#444444", weight = 1, smoothFactor = 0.5,
                  opacity = 1.0, fillOpacity = 0.5,
