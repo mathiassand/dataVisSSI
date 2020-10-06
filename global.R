@@ -16,7 +16,7 @@ dk <- st_read("shapefiles/gadm36_DNK_2.shp")
 
 ProcessData<-function(dc){
   
-  dc() %<>%
+  {{dc}} %<>%
     pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
   
   sum(is.na(dc$casesDiagnosed))
@@ -31,7 +31,7 @@ ProcessData<-function(dc){
   dc$kommune <- str_replace(dc$kommune, "Copenhagen", "København")
   dc <- merge(dc, dsize)
   
-  dc() %<>%
+  {{dc}} %<>%
     group_by(kommune) %>%
     mutate(
       casesDPer100k = casesDiagnosed / (population / 1000),
