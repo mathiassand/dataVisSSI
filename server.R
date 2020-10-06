@@ -18,25 +18,17 @@ server <- (function(input, output) {
   # columns. The 'datapath' column will contain the local filenames where the
   # data can be found.
 
-  dataInput <- reactive({
+  dataInput <- eventReactive(input$file1,{
     req(input$file1)
     inFile <- input$file1
-
+    
     if (is.null(inFile)) {
       return(NULL)
     }
-
     dc <- read.csv(inFile$datapath, header = input$header, sep = input$sep, quote = input$quote)
     
     ProcessData(dc)
   })
-
-  # finalInput <- reactive({
-  #   if (!input$ProcessData) {
-  #     return(dataInput())
-  #   }
-  #   
-  # })
 
   output$myMap <- renderLeaflet({
     # Use leaflet() here, and only include aspects of the map that
@@ -58,61 +50,61 @@ server <- (function(input, output) {
         )
     })
 
-  observe({
-    leafletProxy("myMap", data = dataInput()) %>%
-      addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date, weight = 1, stroke = F, fillOpacity = .5, color = "#808080")
+#   observe({
+#     leafletProxy("myMap", data = dataInput()) %>%
+#       addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date, weight = 1, stroke = F, fillOpacity = .5, color = "#808080")
+#   })
+# 
+#   observe({
+#     for (i in 1:nrow(a_one_date)) {
+#     leafletProxy("myMap", data = dataInput()) %>%
+#         addPolylines(
+#           data = a_one_date[i, ],
+#           lng = ~ c(X, custlng_Ch1),
+#           lat = ~ c(Y, custlat_Ch1),
+#           color = ~dcr7dPer100kCh1Col,
+#           weight = 4,
+#           group = "Change since the day before",
+#         )
+#     }
+#   })
+# 
+#   observe({
+#     for (i in 1:nrow(a_one_date)) {
+#         leafletProxy("myMap", data = dataInput()) %>%
+#         addPolylines(
+#           data = a_one_date[i, ],
+#           lng = ~ c(X, custlng_Ch3),
+#           lat = ~ c(Y, custlat_Ch3),
+#           color = ~dcr7dPer100kCh7Col,
+#           weight = 4,
+#           group = "Change the last 3 days",
+#         )
+#     }
+#   })
+# 
+#   observe({
+#     for (i in 1:nrow(a_one_date)) {
+#         leafletProxy("myMap", data = dataInput()) %>%
+#         addPolylines(
+#           data = a_one_date[i, ],
+#           lng = ~ c(X, custlng_Ch7),
+#           lat = ~ c(Y, custlat_Ch7),
+#           color = ~dcr7dPer100kCh7Col,
+#           weight = 4,
+#           group = "Change the last 7 days",
+#         )
+#     }
+#   })
+# 
+#   observe({
+#     myMap<- leafletProxy("myMap", data = dataInput()) %>%
+#       addLayersControl(
+#         overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
+#         options = layersControlOptions(collapsed = FALSE),
+#       )
+#   })
   })
-
-  observe({
-    for (i in 1:nrow(a_one_date)) {
-    leafletProxy("myMap", data = dataInput()) %>%
-        addPolylines(
-          data = a_one_date[i, ],
-          lng = ~ c(X, custlng_Ch1),
-          lat = ~ c(Y, custlat_Ch1),
-          color = ~dcr7dPer100kCh1Col,
-          weight = 4,
-          group = "Change since the day before",
-        )
-    }
-  })
-
-  observe({
-    for (i in 1:nrow(a_one_date)) {
-        leafletProxy("myMap", data = dataInput()) %>%
-        addPolylines(
-          data = a_one_date[i, ],
-          lng = ~ c(X, custlng_Ch3),
-          lat = ~ c(Y, custlat_Ch3),
-          color = ~dcr7dPer100kCh7Col,
-          weight = 4,
-          group = "Change the last 3 days",
-        )
-    }
-  })
-
-  observe({
-    for (i in 1:nrow(a_one_date)) {
-        leafletProxy("myMap", data = dataInput()) %>%
-        addPolylines(
-          data = a_one_date[i, ],
-          lng = ~ c(X, custlng_Ch7),
-          lat = ~ c(Y, custlat_Ch7),
-          color = ~dcr7dPer100kCh7Col,
-          weight = 4,
-          group = "Change the last 7 days",
-        )
-    }
-  })
-
-  observe({
-    myMap<- leafletProxy("myMap", data = dataInput()) %>%
-      addLayersControl(
-        overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
-        options = layersControlOptions(collapsed = FALSE),
-      )
-  })
-})
 
 
 # https://github.com/stefanocudini/leaflet-panel-layers

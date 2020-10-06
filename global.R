@@ -11,15 +11,15 @@ library(readr)
 library(tidyr)
 library(tidyverse)
 library(stringr)
+browser()
 
 dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dk <- st_read("shapefiles/gadm36_DNK_2.shp")
 
 
-
-
 ProcessData <- function(dc) {
+  
   deg2rad <- function(x) {
     radian <- x * pi / 180
     return(radian)
@@ -173,3 +173,5 @@ ProcessData <- function(dc) {
       custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
     )
 }
+
+
