@@ -4,19 +4,17 @@ library(magrittr)
 library(htmltools)
 library(leaflet)
 library(sf)
-library(roll)
-library(magrittr)
 library(here)
-library(readr)
-library(tidyr)
+# library(readr)
+# library(tidyr)
 library(tidyverse)
-library(stringr)
+# library(stringr)
 
 
-dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
-dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
+dsize <- read_delim("Municipality_test_pos.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+dt <- read_delim("Municipality_tested_persons_time_series.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 dk <- st_read("shapefiles/gadm36_DNK_2.shp")
-browser()
+# browser()
 
 ProcessData <- function(dc) {
   
