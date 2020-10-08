@@ -57,7 +57,7 @@ server <- (function(input, output) {
           color = "white",
           opacity = 1,
           weight = 5,
-          group = "Change from yesterday",
+          group = "Change from 7 days ago",
         )
     }
              for (i in 1:nrow(dk_data)) {
@@ -69,7 +69,7 @@ server <- (function(input, output) {
                       color = ~dcr7dPer100kCh7Col,
                       
                       weight = 4,
-                      group = "Change from yesterday",
+                      group = "Change from 7 days ago",
                     )
           }
 
@@ -92,7 +92,7 @@ server <- (function(input, output) {
                 lat = ~ c(Y, custlat_Ch1),
                 color = ~dcr7dPer100kCh1Col,
                 weight = 4,
-                group = "Change from 7 days ago",
+                group = "Change from yesterday",
               )
           }
     map%>%
