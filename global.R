@@ -11,12 +11,12 @@ library(readr)
 library(tidyr)
 library(tidyverse)
 library(stringr)
-browser()
+
 
 dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dk <- st_read("shapefiles/gadm36_DNK_2.shp")
-
+browser()
 
 ProcessData <- function(dc) {
   
@@ -52,7 +52,7 @@ ProcessData <- function(dc) {
   dt[!(dt$kommune %in% dsize$kommune), ]$kommune
   
   # ooops!
-  # for some reason one data frame uses Københaven the other Copenhagen),
+  # for some reason one data frame uses København the other Copenhagen),
   dc$kommune <- str_replace(dc$kommune, "Copenhagen", "København")
   dt$kommune <- str_replace(dt$kommune, "Copenhagen", "København")
   # check again keys are clean OK re-run rows 35-37
@@ -93,6 +93,8 @@ ProcessData <- function(dc) {
   
   # check there were no diagnosis without tests
   sum(df$casesDiagnosed > df$testsConducted)
+  
+  
   dk$NAME_2 <- str_replace(dk$NAME_2, "Århus", "Aarhus")
   dk$NAME_2 <- str_replace(dk$NAME_2, "Høje Taastrup", "Høje-Taastrup")
   dk$NAME_2 <- str_replace(dk$NAME_2, "Vesthimmerland", "Vesthimmerlands")
@@ -119,31 +121,26 @@ ProcessData <- function(dc) {
 
   # merging the coords/kommunes with the covid data
   dk_merge_coords_test <-
-    df %>%
+    dc %>%
     merge(dk_merge_coords)
 
   # merging the covid data into the shapefile to plot it
   df_dk_covid <-
-    df %>%
+    dc %>%
     filter(date_sample == "2020-09-17") %>%
     merge(df_dk)
 
   # to plot the data it needs to be a shapefile (sf) again - creating shapefile
   # and specifying where it should take sf data from
-  df_dk_covid <-
+   df_dk_covid <-
     st_as_sf(df_dk_covid, sf_column_name = "geometry")
-
-  # making another sf to plot copenhagen as a seperate map
-  df_cph_covid <-
-    df_dk_covid %>%
-    filter(NAME_1 == "Hovedstaden")
 
   # filtering for a single date to not cause overplotting
   a_one_date <- dk_merge_coords_test %>%
     filter(date_sample == "2020-09-17")
 
 
-  ########### MAP###########
+  ########### MAP ###########
 
   # getting the absolute values - converting the negative values into 0
   # to later normalize

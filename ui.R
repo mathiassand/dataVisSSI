@@ -30,6 +30,6 @@ shinyUI(pageWithSidebar(
                      'Double Quote')
     ),
     mainPanel(
-        leafletOutput("myMap")
+        leafletOutput("map")
     )
 ))
