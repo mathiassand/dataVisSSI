@@ -32,10 +32,11 @@ ProcessData <- function(dc) {
     rename(date_sample = PrDate_adjusted)
   
   # check there are no NA in the set
-  sum(is.na(dc$casesDiagnosed))
-  sum(is.na(dt$testsConducted))
-  sum(is.na(dt$testsConducted))
-  sum(is.na(dsize$Befolkningstal))
+  # sum(is.na(dc$casesDiagnosed))
+  # sum(is.na(dt$testsConducted))
+  # sum(is.na(dt$testsConducted))
+  # sum(is.na(dsize$Befolkningstal))
+  # THESE SHOULD BE TIED TO ERROR MESSAGES if >0 
   
   # make data compatible rename columns for merging and
   dsize <- dsize %>%
@@ -125,7 +126,7 @@ ProcessData <- function(dc) {
   # merging the covid data into the shapefile to plot it
   df_dk_covid <-
     dc %>%
-    filter(date_sample == "2020-09-17") %>%
+    filter(date_sample == "2020-10-07") %>%
     merge(df_dk)
 
   # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -135,7 +136,7 @@ ProcessData <- function(dc) {
 
   # filtering for a single date to not cause overplotting
   a_one_date <- dk_merge_coords_test %>%
-    filter(date_sample == "2020-09-17")
+    filter(date_sample == "2020-10-07")
 
 
   ########### MAP ###########
