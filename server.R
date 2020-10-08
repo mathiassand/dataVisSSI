@@ -48,17 +48,31 @@ server <- (function(input, output) {
         fillColor = ~colorQuantile("YlOrRd", dk_data$dcr7dPer100k)(dk_data$dcr7dPer100k)) %>%
           addCircleMarkers(lng = dk_data$X, lat = dk_data$Y, radius = 8, data = dk_data,
                            weight = 1, stroke = F, fillOpacity = 1, color = "#808080")
-          for (i in 1:nrow(dk_data)) {
+    for (i in 1:nrow(dk_data)) {
+      map <- map %>%
+        addPolylines(
+          data = dk_data[i, ],
+          lng = ~ c(X, custlng_Ch7),
+          lat = ~ c(Y, custlat_Ch7),
+          color = "white",
+          opacity = 1,
+          weight = 5,
+          group = "Change from yesterday",
+        )
+    }
+             for (i in 1:nrow(dk_data)) {
             map <- map %>%
                     addPolylines(
                       data = dk_data[i, ],
                       lng = ~ c(X, custlng_Ch7),
                       lat = ~ c(Y, custlat_Ch7),
                       color = ~dcr7dPer100kCh7Col,
+                      
                       weight = 4,
                       group = "Change from yesterday",
                     )
           }
+
           for (i in 1:nrow(dk_data)) {
             map <- map %>%
               addPolylines(
