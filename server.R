@@ -20,7 +20,7 @@ server <- (function(input, output) {
 
   dataInput <- reactive({
     req(input$file1)
-    read.csv(input$file1$datapath, header = input$header, sep = input$sep, quote = input$quote)
+    read.csv(input$file1$datapath, header = TRUE, sep = ";", quote = "")
   })
   
   finalInput<-reactive({
@@ -46,17 +46,17 @@ server <- (function(input, output) {
         data = dk, color = "#444444", weight = 1, smoothFactor = 0.5,
         opacity = 1.0, fillOpacity = 0.5,
         fillColor = ~colorQuantile("YlOrRd", dk_data$dcr7dPer100k)(dk_data$dcr7dPer100k)) %>%
-          addCircleMarkers(lng = dk_data$X, lat = dk_data$Y, radius = 6, data = dk_data,
-                           weight = 1, stroke = F, fillOpacity = .5, color = "#808080")
+          addCircleMarkers(lng = dk_data$X, lat = dk_data$Y, radius = 8, data = dk_data,
+                           weight = 1, stroke = F, fillOpacity = 1, color = "#808080")
           for (i in 1:nrow(dk_data)) {
             map <- map %>%
                     addPolylines(
                       data = dk_data[i, ],
-                      lng = ~ c(X, custlng_Ch1),
-                      lat = ~ c(Y, custlat_Ch1),
-                      color = ~dcr7dPer100kCh1Col,
+                      lng = ~ c(X, custlng_Ch7),
+                      lat = ~ c(Y, custlat_Ch7),
+                      color = ~dcr7dPer100kCh7Col,
                       weight = 4,
-                      group = "Change since the day before",
+                      group = "Change from yesterday",
                     )
           }
           for (i in 1:nrow(dk_data)) {
@@ -67,23 +67,23 @@ server <- (function(input, output) {
                 lat = ~ c(Y, custlat_Ch3),
                 color = ~dcr7dPer100kCh3Col,
                 weight = 4,
-                group = "Change the last 3 days",
+                group = "Change from 3 days ago",
               )
           }
           for (i in 1:nrow(dk_data)) {
             map <- map %>%
               addPolylines(
                 data = dk_data[i, ],
-                lng = ~ c(X, custlng_Ch7),
-                lat = ~ c(Y, custlat_Ch7),
-                color = ~dcr7dPer100kCh7Col,
+                lng = ~ c(X, custlng_Ch1),
+                lat = ~ c(Y, custlat_Ch1),
+                color = ~dcr7dPer100kCh1Col,
                 weight = 4,
-                group = "Change the last 7 days",
+                group = "Change from 7 days ago",
               )
           }
     map%>%
           addLayersControl(
-                    overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
+                    overlayGroups = c("Change from yesterday", "Change from 3 days ago", "Change from 7 days ago"),
                     options = layersControlOptions(collapsed = FALSE),
                   )
   
