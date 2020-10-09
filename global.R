@@ -30,9 +30,10 @@ dsize <- dsize %>%
 dsize[!(dsize$kommune %in% dt$kommune), ]$kommune
 
 ProcessData <- function(dc) {
+  n_distinct(dc, na.rm=FALSE)
   dc %<>%
     pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
-  n_distinct(dc, na.rm=FALSE)
+
   # check there are no NA in the set
   sum(is.na(dc$casesDiagnosed))
   sum(is.na(dsize$Befolkningstal))
