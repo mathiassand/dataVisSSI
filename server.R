@@ -20,68 +20,51 @@ server <- (function(input, output) {
 
   dataInput <- reactive({
     req(input$file1)
-    read.csv(input$file1$datapath, header = input$header, sep = input$sep, quote = input$quote)
+    dc<-read.csv(input$file1$datapath, header = TRUE, sep = ";", quote = "")
+    ProcessData(dc)
   })
-  
-  finalInput<-reactive({
-    req(input$file1)
-    ProcessData(dataInput())
-  })
-  
 
   output$map <- renderLeaflet({
-    if (is.null(finalInput())) {
-      return(NULL)
-    }
     # Use leaflet() here, and only include aspects of the map that
     # won't need to change dynamically (at least, not unless the
     # entire map is being torn down and recreated).
-    dk_data<-finalInput()
+
+    sf_dk<-Process_sf(dk)
+    dk_data<-dataInput()
     
-    
-    
-    dk_pop <-
-      dsize %>%
-      left_join(dk, by = c("kommune" = "NAME_2"))
-    
-    sf_dk <- st_as_sf(dk_pop, sf_column_name = "geometry")
-    # getting the centroids to grab the coordinates from the dataset
-    dk_cent <- st_centroid(sf_dk)
-    dk_coords <- st_coordinates(dk_cent)
-    
-    # converting the matrix into a df again
-    dk_coords_next <- as.data.frame(dk_coords)
-    
-    # adding the coordinates to the kommunes and their population
-    dk_merge_coords <-
-      dsize %>%
-      cbind(dk_coords_next)
     
     # merging the coords/kommunes with the covid data
     dk_merge_coords_test <-
       dk_data %>%
-      merge(dk_merge_coords)
+      merge(sf_dk)
     
     # merging the covid data into the shapefile to plot it
     df_dk_covid <-
       dk_data %>%
-      dplyr::filter(date_sample == "2020-09-16") %>%
-      merge(sf_dk)
+      merge(sf_dk) %>% 
+      dplyr::filter(date_sample == "2020-09-16")
     
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
     # and specifying where it should take sf data from
-    sf_dk_covid <-
-      st_as_sf(sf_dk_covid, sf_column_name = "geometry")
+    
+    df_dk_covid <-
+      st_as_sf(df_dk_covid, sf_column_name = "geometry")
+    
     
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
       dplyr::filter(date_sample == "2020-09-16")
-    
+
     scaleFactor <- 20
-    
+
     a_one_date$dcr7dPer100kCh1Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh1), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
     a_one_date$dcr7dPer100kCh3Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh3), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
     a_one_date$dcr7dPer100kCh7Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh7), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
+    
+    deg2rad <- function(x) {
+      radian <- x * pi / 180
+      return(radian)
+    }
     
     a_one_date %<>%
       mutate(
@@ -101,7 +84,7 @@ server <- (function(input, output) {
         custlat_Ch3 = Y + sign(dcr7dPer100kCh3) * (custlat_dcr7dPer100kCh3),
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
-    
+
     map<-leaflet(data = dk_data) %>%
       addTiles() %>%
       setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
