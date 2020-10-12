@@ -103,14 +103,13 @@ server <- (function(input, output) {
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
         opacity = 1.0, fillOpacity = 0.5,
         #fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
-        popup = paste0("<b>Confirmed cases since yesterday</b>",
-                       "<br>",
-                       "<br>",
-                       "<b>Municipality:</b> ",
-                       a_one_date$kommune,
-                       "<br>",
-                       "<b>Confirmed cases:</b> ",
-                       a_one_date$casesDiagnosed), 
+        # popup = paste0("<h5>Confirmed cases since yesterday</h5>",
+        #                "<br>",
+        #                "<b>Municipality:</b> ",
+        #                a_one_date$kommune,
+        #                "<br>",
+        #                "<b>Confirmed cases:</b> ",
+        #                a_one_date$casesDiagnosed), 
                 
                 
         fillColor = ~pal(dcr7dPer100k)) %>%
