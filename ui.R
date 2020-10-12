@@ -28,6 +28,6 @@ shinyUI(pageWithSidebar(
         #              'Double Quote')
     ),
     mainPanel(
-        leafletOutput("map", width = "100%", height = 1000)
+        leafletOutput("map", height ="900")
     )
 ))

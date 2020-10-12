@@ -19,7 +19,6 @@ dc <- read_delim(here("Municipality_cases_time_series.csv"), ";", escape_double 
 dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 
-
 # make data tidy
 dc %<>%
   pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
@@ -148,7 +147,7 @@ dk_merge_coords_test <-
 # merging the covid data into the shapefile to plot it
 df_dk_covid <-
   df %>%
-  filter(date_sample == "2020-09-17") %>%
+  filter(date_sample == "2020-09-16") %>%
   merge(df_dk)
 
 # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -163,7 +162,7 @@ df_cph_covid<-
 
 # filtering for a single date to not cause overplotting
 a_one_date <- dk_merge_coords_test %>%
-  filter(date_sample == "2020-09-17")
+  filter(date_sample == "2020-09-16")
 
 
 ########### MAP###########
