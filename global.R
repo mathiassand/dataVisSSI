@@ -25,11 +25,10 @@ dsize <- dsize %>%
   select(-kID)
 
 ProcessData <- function(dc) {
-
   dc %<>%
     pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
 
-  dc$kommune<-gsub("\\.", "-", dc$kommune)
+  dc$kommune <- gsub("\\.", "-", dc$kommune)
 
   dt %<>%
     pivot_longer(cols = !PrDate_adjusted, names_to = "kommune", values_to = "testsConducted") %>%
@@ -62,8 +61,7 @@ ProcessData <- function(dc) {
   return(dc)
 }
 
-Process_sf<-function(dk){
-  
+Process_sf <- function(dk) {
   dk_pop <-
     dsize %>%
     left_join(dk, by = c("kommune" = "NAME_2"))
@@ -81,13 +79,10 @@ Process_sf<-function(dk){
   dk_merge_coords <-
     dsize %>%
     cbind(dk_coords_next)
-  
-  dk_merge_coords<-
-    dk_merge_coords%>%
+
+  dk_merge_coords <-
+    dk_merge_coords %>%
     merge(sf_dk)
-  
+
   return(dk_merge_coords)
-
 }
-
-
