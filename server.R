@@ -46,7 +46,7 @@ server <- (function(input, output) {
     # merging the covid data into the shapefile to plot it
     df_dk_covid <-
       dk_data %>%
-      dplyr::filter(date_sample == "2020-08-16")%>%
+      dplyr::filter(date_sample == "2020-09-16")%>%
       merge(sf_dk)
 
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -58,7 +58,7 @@ server <- (function(input, output) {
 
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
-      dplyr::filter(date_sample == "2020-08-16")
+      dplyr::filter(date_sample == "2020-09-16")
 
     scaleFactor <- 20
 
@@ -90,16 +90,24 @@ server <- (function(input, output) {
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
 
-    map<-leaflet(data = dk_data) %>%
+    pal<-colorNumeric(
+      palette = "YlOrRd",
+      domain = df_dk_covid$dcr7dPer100k
+    )
+    
+    map<-leaflet() %>%
       addTiles() %>%
       setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
       addProviderTiles(providers$CartoDB.Positron) %>%
       addPolygons(
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
         opacity = 1.0, fillOpacity = 0.5,
-        fillColor = ~colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k)) %>%
-          addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
-                           weight = 1, stroke = F, fillOpacity = .8, color = "#808080")
+        #fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
+        label = a_one_date$kommune, 
+        fillColor = ~pal(dcr7dPer100k)) %>%
+      addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
+                        weight = 1, stroke = F, fillOpacity = .8, color = "#808080") %>%
+      addLegend(data = a_one_date, position = "bottomright", pal = pal, values = ~dcr7dPer100k, title = "confirmed cases pr 100k", bins = 5)
 
           for (i in 1:nrow(a_one_date)) {
             map <- map %>%
