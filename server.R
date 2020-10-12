@@ -103,7 +103,16 @@ server <- (function(input, output) {
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
         opacity = 1.0, fillOpacity = 0.5,
         #fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
-        label = a_one_date$kommune, 
+        popup = paste0("<b>Confirmed cases since yesterday</b>",
+                       "<br>",
+                       "<br>",
+                       "<b>Municipality:</b> ",
+                       a_one_date$kommune,
+                       "<br>",
+                       "<b>Confirmed cases:</b> ",
+                       a_one_date$casesDiagnosed), 
+                
+                
         fillColor = ~pal(dcr7dPer100k)) %>%
       addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
                         weight = 1, stroke = F, fillOpacity = .8, color = "#808080") %>%

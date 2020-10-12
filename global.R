@@ -12,6 +12,7 @@ library(tidyr)
 library(tidyverse)
 library(stringr)
 
+
 dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dk <- st_read("shapefiles/gadm36_DNK_2.shp")
