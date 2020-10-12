@@ -99,17 +99,30 @@ server <- (function(input, output) {
         opacity = 1.0, fillOpacity = 0.5,
         fillColor = ~colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k)) %>%
           addCircleMarkers(lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
-                           weight = 1, stroke = F, fillOpacity = .5, color = "#808080")
+                           weight = 1, stroke = F, fillOpacity = .8, color = "#808080")
+
           for (i in 1:nrow(a_one_date)) {
             map <- map %>%
-                    addPolylines(
-                      data = a_one_date[i, ],
-                      lng = ~ c(X, custlng_Ch1),
-                      lat = ~ c(Y, custlat_Ch1),
-                      color = ~dcr7dPer100kCh1Col,
-                      weight = 4,
-                      group = "Change since the day before",
-                    )
+              addPolylines(
+                data = a_one_date[i, ],
+                lng = ~ c(X, custlng_Ch1),
+                lat = ~ c(Y, custlat_Ch1),
+                color = ~dcr7dPer100kCh1Col,
+                weight = 4,
+                opacity = 1,
+                group = "Change since the day before",
+              )
+          }
+          for (i in 1:nrow(a_one_date)) {
+            map <- map %>%
+              addPolylines(
+                data = a_one_date[i, ],
+                lng = ~ c(X, custlng_Ch1),
+                lat = ~ c(Y, custlat_Ch1),
+                color = "white",
+                weight = 5,
+                group = "Change since the day before",
+              )
           }
           for (i in 1:nrow(a_one_date)) {
             map <- map %>%
@@ -119,6 +132,18 @@ server <- (function(input, output) {
                 lat = ~ c(Y, custlat_Ch3),
                 color = ~dcr7dPer100kCh3Col,
                 weight = 4,
+                opacity = 1,
+                group = "Change the last 3 days",
+              )
+          }
+          for (i in 1:nrow(a_one_date)) {
+            map <- map %>%
+              addPolylines(
+                data = a_one_date[i, ],
+                lng = ~ c(X, custlng_Ch3),
+                lat = ~ c(Y, custlat_Ch3),
+                color = "white",
+                weight = 5,
                 group = "Change the last 3 days",
               )
           }
@@ -130,6 +155,18 @@ server <- (function(input, output) {
                 lat = ~ c(Y, custlat_Ch7),
                 color = ~dcr7dPer100kCh7Col,
                 weight = 4,
+                opacity = 1,
+                group = "Change the last 7 days",
+              )
+          }
+          for (i in 1:nrow(a_one_date)) {
+            map <- map %>%
+              addPolylines(
+                data = a_one_date[i, ],
+                lng = ~ c(X, custlng_Ch7),
+                lat = ~ c(Y, custlat_Ch7),
+                color = "white",
+                weight = 5,
                 group = "Change the last 7 days",
               )
           }
