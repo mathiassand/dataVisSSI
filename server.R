@@ -20,8 +20,13 @@ server <- (function(input, output) {
 
   dataInput <- reactive({
     req(input$file1)
-    dc<-read.csv(input$file1$datapath, header = TRUE, sep = ";", quote = "")
+    dc<-read.csv(input$file1$datapath, header = TRUE, sep = ";", quote = "", encoding = "UTF-8")
     ProcessData(dc)
+  })
+  
+  shapefile<-reactive({
+    req(input$file1)
+    Process_sf(dk)
   })
 
   output$map <- renderLeaflet({
@@ -29,31 +34,31 @@ server <- (function(input, output) {
     # won't need to change dynamically (at least, not unless the
     # entire map is being torn down and recreated).
 
-    sf_dk<-Process_sf(dk)
+    sf_dk<-shapefile()
     dk_data<-dataInput()
     
-    
+
     # merging the coords/kommunes with the covid data
     dk_merge_coords_test <-
       dk_data %>%
       merge(sf_dk)
-    
+
     # merging the covid data into the shapefile to plot it
     df_dk_covid <-
       dk_data %>%
-      merge(sf_dk) %>% 
-      dplyr::filter(date_sample == "2020-09-16")
-    
+      dplyr::filter(date_sample == "2020-08-16")%>%
+      merge(sf_dk)
+
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
-    # and specifying where it should take sf data from
+
     
     df_dk_covid <-
       st_as_sf(df_dk_covid, sf_column_name = "geometry")
     
-    
+
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
-      dplyr::filter(date_sample == "2020-09-16")
+      dplyr::filter(date_sample == "2020-08-16")
 
     scaleFactor <- 20
 
