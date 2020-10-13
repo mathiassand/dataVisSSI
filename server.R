@@ -124,7 +124,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh1Col,
           weight = 4,
           opacity = 1,
-          group = "Change since the day before",
+          group = "Change from yesterday",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -135,7 +135,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch1),
           color = "white",
           weight = 5,
-          group = "Change since the day before",
+          group = "Change from yesterday",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -147,7 +147,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh3Col,
           weight = 4,
           opacity = 1,
-          group = "Change the last 3 days",
+          group = "Change from 3 days ago",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -158,7 +158,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch3),
           color = "white",
           weight = 5,
-          group = "Change the last 3 days",
+          group = "Change from 3 days ago",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -170,7 +170,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh7Col,
           weight = 4,
           opacity = 1,
-          group = "Change the last 7 days",
+          group = "Change from 7 days ago",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -181,7 +181,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch7),
           color = "white",
           weight = 5,
-          group = "Change the last 7 days",
+          group = "Change from 7 days ago",
         )
     }
     map %>%
