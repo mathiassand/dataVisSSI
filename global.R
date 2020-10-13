@@ -10,7 +10,6 @@ library(tidyr)
 library(tidyverse)
 library(stringr)
 
-
 dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dk <- st_read("shapefiles/gadm36_DNK_2.shp")
@@ -25,15 +24,19 @@ dsize <- dsize %>%
   select(-kID)
 
 ProcessData <- function(dc) {
+  # re-formatting the dc dataframe
   dc %<>%
     pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
-
+  
+  # replacing dots with hyphen
   dc$kommune <- gsub("\\.", "-", dc$kommune)
 
+  # re-formatting the dt dataframe
   dt %<>%
     pivot_longer(cols = !PrDate_adjusted, names_to = "kommune", values_to = "testsConducted") %>%
     arrange(kommune, PrDate_adjusted) %>%
     rename(date_sample = PrDate_adjusted)
+  
   # check Kommune name can be used as key
   unique(dc[!(dc$kommune %in% dsize$kommune), ]$kommune)
   unique(dsize[!(dsize$kommune %in% dc$kommune), ]$kommune)
@@ -62,13 +65,16 @@ ProcessData <- function(dc) {
 }
 
 Process_sf <- function(dk) {
+  # including population to the shapefile
   dk_pop <-
     dsize %>%
     left_join(dk, by = c("kommune" = "NAME_2"))
 
+  # transforming dk_pop to a shapefile
   sf_dk <- st_as_sf(dk_pop, sf_column_name = "geometry")
 
-  # getting the centroids to grab the coordinates from the dataset
+  # getting the centroids to grab the coordinates from the shapefile - results 
+  # in a matrix
   dk_cent <- st_centroid(sf_dk)
   dk_coords <- st_coordinates(dk_cent)
 
@@ -80,6 +86,7 @@ Process_sf <- function(dk) {
     dsize %>%
     cbind(dk_coords_next)
 
+  # merging the coordinates into the shapefile 
   dk_merge_coords <-
     dk_merge_coords %>%
     merge(sf_dk)

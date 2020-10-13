@@ -25,13 +25,9 @@ server <- (function(input, output) {
   })
 
   output$map <- renderLeaflet({
-    # Use leaflet() here, and only include aspects of the map that
-    # won't need to change dynamically (at least, not unless the
-    # entire map is being torn down and recreated).
-
+    # loading the dataframe and shapefile after they have been processed in global.R
     sf_dk <- shapefile()
     dk_data <- dataInput()
-
 
     # merging the coords/kommunes with the covid data
     dk_merge_coords_test <-
@@ -45,11 +41,8 @@ server <- (function(input, output) {
       merge(sf_dk)
 
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
-
-
     df_dk_covid <-
       st_as_sf(df_dk_covid, sf_column_name = "geometry")
-
 
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
