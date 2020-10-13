@@ -99,7 +99,7 @@ server <- (function(input, output) {
         #                "<b>Confirmed cases:</b> ",
         #                a_one_date$casesDiagnosed),
 
-
+        label = a_one_date$kommune,
         fillColor = ~ pal(dcr7dPer100k)
       ) %>%
       addCircleMarkers(
@@ -184,6 +184,3 @@ server <- (function(input, output) {
       )
   })
 })
-
-
-# https://github.com/stefanocudini/leaflet-panel-layers
