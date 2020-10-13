@@ -242,6 +242,7 @@ a_cph_date <- a_cph_date %>%
 myMap_1 <- leaflet() %>%
   # registerPlugin(plugin = rotatedMarker) %>%
   setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
   addPolygons(
     data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
     opacity = 1.0, fillOpacity = 0.5,
@@ -307,7 +308,7 @@ myMap_1 %>%
   addLayersControl(
     overlayGroups = c("Change since the day before", "Change the last 3 days", "Change the last 7 days"),
     options = layersControlOptions(collapsed = FALSE),
-  ) 
+  )
 
 
 

@@ -27,7 +27,7 @@ ProcessData <- function(dc) {
   # re-formatting the dc dataframe
   dc %<>%
     pivot_longer(cols = !date_sample, names_to = "kommune", values_to = "casesDiagnosed") %>% arrange(kommune, date_sample)
-  
+
   # replacing dots with hyphen
   dc$kommune <- gsub("\\.", "-", dc$kommune)
 
