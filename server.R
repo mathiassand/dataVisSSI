@@ -96,7 +96,7 @@ server <- (function(input, output) {
       addProviderTiles(providers$CartoDB.Positron) %>%
       addPolygons(
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
-        opacity = 1.0, fillOpacity = 0.5,
+        opacity = 1.0, fillOpacity = 1,
         # fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
         # popup = paste0("<h5>Confirmed cases since yesterday</h5>",
         #                "<br>",
