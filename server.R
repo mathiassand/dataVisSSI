@@ -25,9 +25,13 @@ server <- (function(input, output) {
   })
 
   output$map <- renderLeaflet({
-    # loading the dataframe and shapefile after they have been processed in global.R
+    # Use leaflet() here, and only include aspects of the map that
+    # won't need to change dynamically (at least, not unless the
+    # entire map is being torn down and recreated).
+
     sf_dk <- shapefile()
     dk_data <- dataInput()
+
 
     # merging the coords/kommunes with the covid data
     dk_merge_coords_test <-
@@ -78,9 +82,12 @@ server <- (function(input, output) {
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
 
-    pal <- colorNumeric(
-      palette = "YlOrRd",
-      domain = df_dk_covid$dcr7dPer100k
+    
+    breaks<-seq(min(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k)/4)
+      
+    pal <- colorBin(
+      palette = "Reds",
+      bins = breaks
     )
 
     map <- leaflet() %>%
@@ -99,14 +106,14 @@ server <- (function(input, output) {
         #                "<b>Confirmed cases:</b> ",
         #                a_one_date$casesDiagnosed),
 
-        label = a_one_date$kommune,
+
         fillColor = ~ pal(dcr7dPer100k)
       ) %>%
       addCircleMarkers(
         lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
         weight = 1, stroke = F, fillOpacity = .8, color = "#808080"
       ) %>%
-      addLegend(data = a_one_date, position = "bottomright", pal = pal, values = ~dcr7dPer100k, title = "confirmed cases pr 100k", bins = 5)
+      addLegend(data = a_one_date, position = "bottomright", pal = pal, values = ~dcr7dPer100k, title = "confirmed cases pr 100k")
 
     for (i in 1:nrow(a_one_date)) {
       map <- map %>%
@@ -117,7 +124,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh1Col,
           weight = 4,
           opacity = 1,
-          group = "Change from yesterday",
+          group = "Change since the day before",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -128,7 +135,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch1),
           color = "white",
           weight = 5,
-          group = "Change from yesterday",
+          group = "Change since the day before",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -140,7 +147,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh3Col,
           weight = 4,
           opacity = 1,
-          group = "Change from 3 days ago",
+          group = "Change the last 3 days",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -151,7 +158,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch3),
           color = "white",
           weight = 5,
-          group = "Change from 3 days ago",
+          group = "Change the last 3 days",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -163,7 +170,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh7Col,
           weight = 4,
           opacity = 1,
-          group = "Change from 7 days ago",
+          group = "Change the last 7 days",
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -174,7 +181,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch7),
           color = "white",
           weight = 5,
-          group = "Change from 7 days ago",
+          group = "Change the last 7 days",
         )
     }
     map %>%
@@ -184,3 +191,6 @@ server <- (function(input, output) {
       )
   })
 })
+
+
+# https://github.com/stefanocudini/leaflet-panel-layers
