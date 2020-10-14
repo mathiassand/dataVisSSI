@@ -83,11 +83,11 @@ server <- (function(input, output) {
       )
 
     
-    breaks<-seq(min(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k)/4)
-      
+    bins<-seq(min(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k)/5)
+      #
     pal <- colorBin(
-      palette = "Reds",
-      bins = breaks
+      palette = c("#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
+      bins = bins
     )
 
     map <- leaflet() %>%
