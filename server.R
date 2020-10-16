@@ -96,6 +96,7 @@ server <- (function(input, output) {
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
         opacity = 1.0, fillOpacity = 1,
         # fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
+        fillColor = ~ pal(dcr7dPer100k), 
         popup = paste0(
           "<h5>Confirmed cases today (test information)</h5>",
           "<br>",
@@ -105,7 +106,6 @@ server <- (function(input, output) {
           "<b>Confirmed cases:</b> ",
           a_one_date$casesDiagnosed
         ),
-        fillColor = ~ pal(dcr7dPer100k)
       ) %>%
       addCircleMarkers(
         lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
@@ -190,9 +190,9 @@ server <- (function(input, output) {
     }
     map %>%
       addLayersControl(
+        position = "topright",
         overlayGroups = c("Change from yesterday", "Change from 3 days ago", "Change from 7 days ago"),
-        options = layersControlOptions(collapsed = FALSE),
-        position = "topright"
+        options = layersControlOptions(collapsed = FALSE)
       )
   })
 })
