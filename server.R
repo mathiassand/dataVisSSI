@@ -82,38 +82,42 @@ server <- (function(input, output) {
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
 
-    
-    bins<-seq(min(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k)/5)
-      #
+
+    bins <- seq(min(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k) / 5)
+    #
     pal <- colorBin(
       palette = c("#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
       bins = bins
     )
 
     map <- leaflet() %>%
-      addTiles() %>%
       setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
       addPolygons(
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
         opacity = 1.0, fillOpacity = 1,
         # fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
-        # popup = paste0("<h5>Confirmed cases since yesterday</h5>",
-        #                "<br>",
-        #                "<b>Municipality:</b> ",
-        #                a_one_date$kommune,
-        #                "<br>",
-        #                "<b>Confirmed cases:</b> ",
-        #                a_one_date$casesDiagnosed),
-
-
+        popup = paste0(
+          "<h5>Confirmed cases today (test information)</h5>",
+          "<br>",
+          "<b>Municipality:</b> ",
+          a_one_date$kommune,
+          "<br>",
+          "<b>Confirmed cases:</b> ",
+          a_one_date$casesDiagnosed
+        ),
         fillColor = ~ pal(dcr7dPer100k)
       ) %>%
       addCircleMarkers(
         lng = ~X, lat = ~Y, radius = 6, data = a_one_date,
         weight = 1, stroke = F, fillOpacity = .8, color = "#808080"
       ) %>%
-      addLegend(data = a_one_date, position = "bottomright", pal = pal, values = ~dcr7dPer100k, title = "confirmed cases pr 100k")
+      addLegend(
+        data = a_one_date,
+        position = "topright",
+        pal = pal,
+        values = ~dcr7dPer100k,
+        title = "confirmed cases pr. 1000"
+      )
 
     for (i in 1:nrow(a_one_date)) {
       map <- map %>%
@@ -188,6 +192,7 @@ server <- (function(input, output) {
       addLayersControl(
         overlayGroups = c("Change from yesterday", "Change from 3 days ago", "Change from 7 days ago"),
         options = layersControlOptions(collapsed = FALSE),
+        position = "topright"
       )
   })
 })
