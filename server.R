@@ -96,7 +96,7 @@ server <- (function(input, output) {
       setView(lng = 11.001785, lat = 56.26392, zoom = 7.5) %>%
       addPolygons(
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
-        opacity = 1.0, fillOpacity = 1, layerId = ~a_one_date$kommune,
+        opacity = 1.0, fillOpacity = 1,
         # fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
         fillColor = ~ pal(dcr7dPer100k), 
         popup = paste0(
@@ -199,18 +199,23 @@ server <- (function(input, output) {
   })
   
   
-  # observe({
-  #   click <- input$map_shape_click
-  #   if(is.null(click))
-  #     return()
-  #   
-  #   idx <- which(a_one_date$kommune == click$id)
-  #   z <- a_one_date$kommune[[idx]]
-  #   
-  #   leafletProxy("map") %>%
-  #     setView(lng = click$lng, lat = click$lat, zoom = z)
-  # 
-  # })
+  observe({
+    click <- input$map_shape_click
+    if(is.null(click))
+      return()
+
+    leafletProxy("map") %>%
+      setView(lng = click$lng, lat = click$lat, zoom = 9)
+  })
+  
+  observe({
+    click <- input$map_click
+    if(is.null(click))
+      return()
+    
+    leafletProxy("map") %>%
+      setView(lng = 11.001785, lat = 56.26392, zoom = 7.5)
+  })
 })
 
 
