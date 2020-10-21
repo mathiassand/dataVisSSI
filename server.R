@@ -89,10 +89,10 @@ server <- (function(input, output) {
       palette = c("#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
       bins = bins
     )
-    browser()
+
     a_one_date$zoom <- sample(1:99, size = length(a_one_date$kommune), replace = T)
-    browser()
-    map <- leaflet() %>%
+
+    map <- leaflet(options = leafletOptions(zoomSnap = 0.25, zoomDelta=0.25)) %>%
       setView(lng = 11.001785, lat = 56.26392, zoom = 7.5) %>%
       addPolygons(
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
@@ -199,18 +199,18 @@ server <- (function(input, output) {
   })
   
   
-  observe({
-    click <- input$map_shape_click
-    if(is.null(click))
-      return()
-    
-    idx <- which(a_one_date$kommune == click$id)
-    z <- a_one_date$kommune[[idx]]
-    
-    leafletProxy("map") %>%
-      setView(lng = click$lng, lat = click$lat, zoom = z)
-
-  })
+  # observe({
+  #   click <- input$map_shape_click
+  #   if(is.null(click))
+  #     return()
+  #   
+  #   idx <- which(a_one_date$kommune == click$id)
+  #   z <- a_one_date$kommune[[idx]]
+  #   
+  #   leafletProxy("map") %>%
+  #     setView(lng = click$lng, lat = click$lat, zoom = z)
+  # 
+  # })
 })
 
 
