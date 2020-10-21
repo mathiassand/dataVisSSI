@@ -89,12 +89,14 @@ server <- (function(input, output) {
       palette = c("#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
       bins = bins
     )
-
+    browser()
+    a_one_date$zoom <- sample(1:99, size = length(a_one_date$kommune), replace = T)
+    browser()
     map <- leaflet() %>%
-      setView(lng = 9.501785, lat = 56.26392, zoom = 7) %>%
+      setView(lng = 11.001785, lat = 56.26392, zoom = 7.5) %>%
       addPolygons(
         data = df_dk_covid, color = "#444444", weight = 1, smoothFactor = 0.5,
-        opacity = 1.0, fillOpacity = 1,
+        opacity = 1.0, fillOpacity = 1, layerId = ~a_one_date$kommune,
         # fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
         fillColor = ~ pal(dcr7dPer100k), 
         popup = paste0(
@@ -128,7 +130,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh1Col,
           weight = 4,
           opacity = 1,
-          group = "Change from yesterday",
+          group = "Change from yesterday"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -139,7 +141,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch1),
           color = "white",
           weight = 5,
-          group = "Change from yesterday",
+          group = "Change from yesterday"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -151,7 +153,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh3Col,
           weight = 4,
           opacity = 1,
-          group = "Change from 3 days ago",
+          group = "Change from 3 days ago"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -162,7 +164,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch3),
           color = "white",
           weight = 5,
-          group = "Change from 3 days ago",
+          group = "Change from 3 days ago"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -174,7 +176,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh7Col,
           weight = 4,
           opacity = 1,
-          group = "Change from 7 days ago",
+          group = "Change from 7 days ago"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -185,7 +187,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch7),
           color = "white",
           weight = 5,
-          group = "Change from 7 days ago",
+          group = "Change from 7 days ago"
         )
     }
     map %>%
@@ -194,6 +196,20 @@ server <- (function(input, output) {
         overlayGroups = c("Change from yesterday", "Change from 3 days ago", "Change from 7 days ago"),
         options = layersControlOptions(collapsed = FALSE)
       )
+  })
+  
+  
+  observe({
+    click <- input$map_shape_click
+    if(is.null(click))
+      return()
+    
+    idx <- which(a_one_date$kommune == click$id)
+    z <- a_one_date$kommune[[idx]]
+    
+    leafletProxy("map") %>%
+      setView(lng = click$lng, lat = click$lat, zoom = z)
+
   })
 })
 
