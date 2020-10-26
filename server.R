@@ -199,7 +199,7 @@ server <- (function(input, output) {
         position = "topright",
         overlayGroups = c("Ændring fra i går", "3 dage siden", "7 dage siden"),
         options = layersControlOptions(collapsed = FALSE),
-      )
+      ) %>% hideGroup("3 dage siden") %>% hideGroup("7 dage siden")
   })
   
   
