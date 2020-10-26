@@ -197,7 +197,7 @@ server <- (function(input, output) {
     map %>%
       addLayersControl(
         position = "topright",
-        baseGroups = c("Ændring fra i går", "3 dage siden", "7 dage siden"),
+        overlayGroups = c("Ændring fra i går", "3 dage siden", "7 dage siden"),
         options = layersControlOptions(collapsed = FALSE),
       )
   })
