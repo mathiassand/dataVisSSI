@@ -83,11 +83,11 @@ server <- (function(input, output) {
       )
 
 
-    bins <- c(-1,0,10,20,30,40,50,10000)
+    bins <- c(0,10,20,30,40,50,10000)
       # seq(min(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100 / 5)
     #
     pal <- colorBin(
-      palette = c("#fbd7b3","#fbd7b3","#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
+      palette = c("#ffe0c4", "#ffd3ab","#febe8d","#fea469", "#f4874c", "#e16d3d", "#a3573a"),
       bins = bins
     )
 
@@ -101,13 +101,16 @@ server <- (function(input, output) {
         # fillColor = ~ colorQuantile("YlOrRd", dcr7dPer100k)(dcr7dPer100k),
         fillColor = ~ pal(dcr7dPer100k), 
         popup = paste0(
-          "<h5>Confirmed cases today (test information)</h5>",
+          "<h5>Seneste 7 dage</h5>",
           "<br>",
-          "<b>Municipality:</b> ",
+          "<b>Kommune:</b> ",
           a_one_date$kommune,
           "<br>",
-          "<b>Confirmed cases:</b> ",
-          a_one_date$dcr7dPer100k
+          "<b>Tilfælde:</b> ",
+          a_one_date$dcr7d,
+          "<br>",
+          "<b>Incidens:</b> ",
+          round(a_one_date$dcr7dPer100k, digits=0)
         ),
       ) %>%
       addCircleMarkers(
@@ -119,7 +122,7 @@ server <- (function(input, output) {
         position = "topright",
         pal = pal,
         values = ~dcr7dPer100k,
-        title = "confirmed cases pr. 100k"
+        title = "Incidens de seneste 7 dage"
       )
 
     for (i in 1:nrow(a_one_date)) {
@@ -131,7 +134,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh1Col,
           weight = 4,
           opacity = 1,
-          group = "Change from yesterday"
+          group = "Ændring fra i går"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -142,7 +145,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch1),
           color = "white",
           weight = 5,
-          group = "Change from yesterday"
+          group = "Ændring fra i går"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -154,7 +157,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh3Col,
           weight = 4,
           opacity = 1,
-          group = "Change from 3 days ago"
+          group = "3 dage siden"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -165,7 +168,7 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch3),
           color = "white",
           weight = 5,
-          group = "Change from 3 days ago"
+          group = "3 dage siden"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -177,7 +180,7 @@ server <- (function(input, output) {
           color = ~dcr7dPer100kCh7Col,
           weight = 4,
           opacity = 1,
-          group = "Change from 7 days ago"
+          group = "7 dage siden"
         )
     }
     for (i in 1:nrow(a_one_date)) {
@@ -188,35 +191,35 @@ server <- (function(input, output) {
           lat = ~ c(Y, custlat_Ch7),
           color = "white",
           weight = 5,
-          group = "Change from 7 days ago"
+          group = "7 dage siden"
         )
     }
     map %>%
       addLayersControl(
         position = "topright",
-        overlayGroups = c("Change from yesterday", "Change from 3 days ago", "Change from 7 days ago"),
-        options = layersControlOptions(collapsed = FALSE)
+        baseGroups = c("Ændring fra i går", "3 dage siden", "7 dage siden"),
+        options = layersControlOptions(collapsed = FALSE),
       )
   })
   
   
-  observe({
-    click <- input$map_shape_click
-    if(is.null(click))
-      return()
-
-    leafletProxy("map") %>%
-      setView(lng = click$lng, lat = click$lat, zoom = 9)
-  })
-  
-  observe({
-    click <- input$map_click
-    if(is.null(click))
-      return()
-    
-    leafletProxy("map") %>%
-      setView(lng = 11.001785, lat = 56.26392, zoom = 7.5)
-  })
+  # observe({
+  #   click <- input$map_shape_click
+  #   if(is.null(click))
+  #     return()
+  # 
+  #   leafletProxy("map") %>%
+  #     setView(lng = click$lng, lat = click$lat, zoom = 9)
+  # })
+  # 
+  # observe({
+  #   click <- input$map_click
+  #   if(is.null(click))
+  #     return()
+  #   
+  #   leafletProxy("map") %>%
+  #     setView(lng = 11.001785, lat = 56.26392, zoom = 7.5)
+  # })
 })
 
 
