@@ -53,9 +53,9 @@ ProcessData <- function(dc) {
   dc %<>%
     group_by(kommune) %>%
     mutate(
-      casesDPer100k = casesDiagnosed / (population / 1000),
+      casesDPer100k = casesDiagnosed / (population / 100000),
       dcr7d = roll_sum(casesDiagnosed, width = 3, min_obs = 1),
-      dcr7dPer100k = dcr7d / (population / 1000),
+      dcr7dPer100k = dcr7d / (population / 100000),
       dcr7dPer100kCh1 = lag(dcr7dPer100k, 1) - dcr7dPer100k,
       dcr7dPer100kCh3 = lag(dcr7dPer100k, 3) - dcr7dPer100k,
       dcr7dPer100kCh7 = lag(dcr7dPer100k, 7) - dcr7dPer100k

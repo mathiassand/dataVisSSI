@@ -83,7 +83,8 @@ server <- (function(input, output) {
       )
 
 
-    bins <- seq(min(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k), max(df_dk_covid$dcr7dPer100k) / 5)
+    bins <- c(0,1,10,20,30,40,50,10000)
+      # seq(min(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100 / 5)
     #
     pal <- colorBin(
       palette = c("#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
@@ -118,7 +119,7 @@ server <- (function(input, output) {
         position = "topright",
         pal = pal,
         values = ~dcr7dPer100k,
-        title = "confirmed cases pr. 1000"
+        title = "confirmed cases pr. 100k"
       )
 
     for (i in 1:nrow(a_one_date)) {
