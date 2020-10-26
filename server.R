@@ -41,7 +41,7 @@ server <- (function(input, output) {
     # merging the covid data into the shapefile to plot it
     df_dk_covid <-
       dk_data %>%
-      dplyr::filter(date_sample == "2020-09-16") %>%
+      dplyr::filter(date_sample == "2020-10-23") %>%
       merge(sf_dk)
 
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -50,7 +50,7 @@ server <- (function(input, output) {
 
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
-      dplyr::filter(date_sample == "2020-09-16")
+      dplyr::filter(date_sample == "2020-10-23")
 
     scaleFactor <- 20
 
@@ -83,11 +83,11 @@ server <- (function(input, output) {
       )
 
 
-    bins <- c(0,1,10,20,30,40,50,10000)
+    bins <- c(-1,0,10,20,30,40,50,10000)
       # seq(min(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100 / 5)
     #
     pal <- colorBin(
-      palette = c("#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
+      palette = c("#fbd7b3","#fbd7b3","#fbd7b3", "#fbbc87", "#fba261", "#df6b32", "#a15534"),
       bins = bins
     )
 
@@ -107,7 +107,7 @@ server <- (function(input, output) {
           a_one_date$kommune,
           "<br>",
           "<b>Confirmed cases:</b> ",
-          a_one_date$casesDiagnosed
+          a_one_date$dcr7dPer100k
         ),
       ) %>%
       addCircleMarkers(
