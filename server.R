@@ -216,14 +216,14 @@ server <- (function(input, output) {
   })
   
 
-  observe({
-    click <- input$map_rectangle_click
-    if(is.null(click))
-      return()
-
-    leafletProxy("map") %>%
-      setView(lng = click$lng, lat = click$lat, zoom = 9)
-  })
+  # observe({
+  #   click <- input$map_rectangle_click
+  #   if(is.null(click))
+  #     return()
+  # 
+  #   leafletProxy("map") %>%
+  #     setView(lng = click$lng, lat = click$lat, zoom = 9)
+  # })
 # 
 #   observe({
 #     click <- input$map_click
