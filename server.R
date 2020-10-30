@@ -82,7 +82,8 @@ server <- (function(input, output) {
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
 
-
+    img <- "https://logos-download.com/wp-content/uploads/2019/06/Aalborg_Universitet_Logo_white_text.png"
+    
     bins <- c(0,10,20,30,40,50,10000)
       # seq(min(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100 / 5)
     #
@@ -123,7 +124,19 @@ server <- (function(input, output) {
         pal = pal,
         values = ~dcr7dPer100k,
         title = "Incidens de seneste 7 dage"
+      ) %>%
+      addLogo(
+        img, 
+        position = "bottomleft",
+        width = 100,
+        height = 100
       )
+    
+    # addRectangles(
+    #   lng1 = 11.8821, lat1 = 55.8711, 
+    #   lng2 = 12.7746, lat2 = 55.5536, 
+    #   fillColor = "transparent",
+    # )
 
     for (i in 1:nrow(a_one_date)) {
       map <- map %>%
@@ -202,25 +215,22 @@ server <- (function(input, output) {
       ) %>% hideGroup("3 dage siden") %>% hideGroup("7 dage siden")
   })
   
-  
-  # observe({
-  #   click <- input$map_shape_click
-  #   if(is.null(click))
-  #     return()
-  # 
-  #   leafletProxy("map") %>%
-  #     setView(lng = click$lng, lat = click$lat, zoom = 9)
-  # })
-  # 
-  # observe({
-  #   click <- input$map_click
-  #   if(is.null(click))
-  #     return()
-  #   
-  #   leafletProxy("map") %>%
-  #     setView(lng = 11.001785, lat = 56.26392, zoom = 7.5)
-  # })
+
+  observe({
+    click <- input$map_rectangle_click
+    if(is.null(click))
+      return()
+
+    leafletProxy("map") %>%
+      setView(lng = click$lng, lat = click$lat, zoom = 9)
+  })
+# 
+#   observe({
+#     click <- input$map_click
+#     if(is.null(click))
+#       return()
+# 
+#     leafletProxy("map") %>%
+#       setView(lng = 11.001785, lat = 56.26392, zoom = 7.5)
+#   })
 })
-
-
-# https://github.com/stefanocudini/leaflet-panel-layers

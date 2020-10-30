@@ -9,6 +9,7 @@ library(readr)
 library(tidyr)
 library(tidyverse)
 library(stringr)
+library(leafem)
 
 dt <- read_delim(here("Municipality_tested_persons_time_series.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
 dsize <- read_delim(here("Municipality_test_pos.csv"), ";", escape_double = FALSE, trim_ws = TRUE)
