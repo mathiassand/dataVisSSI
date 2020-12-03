@@ -7,9 +7,9 @@
 #    http://shiny.rstudio.com/
 #
 
-
 # Define UI for application that draws a histogram
-shinyUI(pageWithSidebar(
+shinyUI(
+  fluidPage( includeCSS("custom.css"),
   headerPanel("DK Covid cases overview"),
   sidebarPanel(
     fileInput("file1", "Choose CSV File",
@@ -29,6 +29,7 @@ shinyUI(pageWithSidebar(
     #              'Double Quote')
   ),
   mainPanel(
-    leafletOutput("map", height = "900")
+    leafletOutput("map", height = "900"),
+   tags$footer()
   )
 ))

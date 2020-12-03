@@ -86,7 +86,6 @@ server <- (function(input, output) {
         custlat_Ch3 = Y + sign(dcr7dPer100kCh3) * (custlat_dcr7dPer100kCh3),
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
-    browser()
     img <- "https://logos-download.com/wp-content/uploads/2019/06/Aalborg_Universitet_Logo_white_text.png"
     
     bins <- c(0,10,20,30,40,50,10000)
@@ -129,13 +128,14 @@ server <- (function(input, output) {
         pal = pal,
         values = ~dcr7dPer100k,
         title = "Incidens de seneste 7 dage"
-      ) %>%
-      addLogo(
-        img, 
-        position = "bottomleft",
-        width = 100,
-        height = 100
-      )
+      ) 
+      #%>%
+      # addLogo(
+      #   img, 
+      #   position = "bottomleft",
+      #   width = 100,
+      #   height = 100
+      # )
     
     # addRectangles(
     #   lng1 = 11.8821, lat1 = 55.8711, 
