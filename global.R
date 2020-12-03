@@ -46,7 +46,7 @@ ProcessData <- function(dc) {
   # ooops!
   # for some reason one data frame uses København the other Copenhagen),
   dc$kommune <- str_replace(dc$kommune, "Copenhagen", "København")
-
+  
   # merge data together
   dc <- merge(dc, dsize)
 

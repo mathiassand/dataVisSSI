@@ -147,7 +147,7 @@ dk_merge_coords_test <-
 # merging the covid data into the shapefile to plot it
 df_dk_covid <-
   df %>%
-  filter(date_sample == "2020-09-16") %>%
+  filter(date_sample == "2020-09-23") %>%
   merge(df_dk)
 
 # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -162,7 +162,7 @@ df_cph_covid<-
 
 # filtering for a single date to not cause overplotting
 a_one_date <- dk_merge_coords_test %>%
-  filter(date_sample == "2020-09-16")
+  filter(date_sample == "2020-09-23")
 
 
 ########### MAP###########
@@ -178,9 +178,9 @@ a_one_date$dcr7dPer100kCh7Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh7
 
 a_one_date %<>%
   mutate(
-    y_dcr7dPer100kCh1 = (plogis(abs(dcr7dPer100kCh1) * 10) - 0.5) * 188,
-    y_dcr7dPer100kCh3 = (plogis(abs(dcr7dPer100kCh3) * 10) - 0.5) * 188,
-    y_dcr7dPer100kCh7 = (plogis(abs(dcr7dPer100kCh7) * 10) - 0.5) * 188,
+    y_dcr7dPer100kCh1 = (plogis(abs(dcr7dPer100kCh1) * 10) - 0.5) * 178,
+    y_dcr7dPer100kCh3 = (plogis(abs(dcr7dPer100kCh3) * 10) - 0.5) * 178,
+    y_dcr7dPer100kCh7 = (plogis(abs(dcr7dPer100kCh7) * 10) - 0.5) * 178,
     custlng_dcr7dPer100kCh1 = cos(deg2rad(y_dcr7dPer100kCh1)) / scaleFactor,
     custlng_dcr7dPer100kCh3 = cos(deg2rad(y_dcr7dPer100kCh3)) / scaleFactor,
     custlng_dcr7dPer100kCh7 = cos(deg2rad(y_dcr7dPer100kCh7)) / scaleFactor,
@@ -205,39 +205,6 @@ a_cph_date <- a_one_date %>%
 
 a_cph_date <- a_cph_date %>%
   filter(NAME_1=="Hovedstaden")
-
-
-# rotatedMarker <-
-#   htmlDependency(
-#     name = "Leaflet.rotatedMarker" # note: this .js file has to be copied and stored in your current working directory
-#     , version = "0.1.2",  
-#     src = normalizePath(path = getwd()),
-#     script = "leaflet.rotatedMarker.js"
-#   )
-#
-# registerPlugin <- function(map, plugin) {
-#   map$dependencies <- c(map$dependencies, list(plugin))
-#   map
-# }
-
-# getColor <- function(a_one_date) {
-#   sapply(a_one_date$dcr7dPer100kCh1Col, function(dcr7dPer100kCh1Col) {
-#   if(dcr7dPer100kCh1Col <= 1) {
-#     "#FF0000"
-#   } else if(dcr7dPer100kCh1Col == 0) {
-#     "#00FFFF"
-#   } else {
-#     "#00FF00"
-#   } })
-# }
-
-# arrow.icon <-
-#   makeIcon(
-#     iconUrl = "iconmonstr-arrow-24.svg",
-#     iconWidth = 10,
-#     iconHeight = 10,
-#     # markerColor = getColor(a_one_date)
-#   )
 
 myMap_1 <- leaflet() %>%
   # registerPlugin(plugin = rotatedMarker) %>%

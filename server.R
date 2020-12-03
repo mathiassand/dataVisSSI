@@ -41,7 +41,7 @@ server <- (function(input, output) {
     # merging the covid data into the shapefile to plot it
     df_dk_covid <-
       dk_data %>%
-      dplyr::filter(date_sample == "2020-10-23") %>%
+      dplyr::filter(date_sample == "2020-10-22") %>%
       merge(sf_dk)
 
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -50,9 +50,9 @@ server <- (function(input, output) {
 
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
-      dplyr::filter(date_sample == "2020-10-23")
+      dplyr::filter(date_sample == "2020-10-22")
 
-    scaleFactor <- 20
+   
 
     a_one_date$dcr7dPer100kCh1Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh1), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
     a_one_date$dcr7dPer100kCh3Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh3), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
@@ -62,12 +62,17 @@ server <- (function(input, output) {
       radian <- x * pi / 180
       return(radian)
     }
-
+    
+    scaleFactor <- 20
+    
+    
     a_one_date %<>%
       mutate(
-        y_dcr7dPer100kCh1 = (plogis(abs(dcr7dPer100kCh1) * 10) - 0.5) * 188,
-        y_dcr7dPer100kCh3 = (plogis(abs(dcr7dPer100kCh3) * 10) - 0.5) * 188,
-        y_dcr7dPer100kCh7 = (plogis(abs(dcr7dPer100kCh7) * 10) - 0.5) * 188,
+        #the absolute number is multiplied with 10, and gives us the angle we
+        #want for the line
+        y_dcr7dPer100kCh1 = (plogis(abs(dcr7dPer100kCh1) / 10) - 0.5) * 178,
+        y_dcr7dPer100kCh3 = (plogis(abs(dcr7dPer100kCh3) / 10) - 0.5) * 178,
+        y_dcr7dPer100kCh7 = (plogis(abs(dcr7dPer100kCh7) / 10) - 0.5) * 178,
         custlng_dcr7dPer100kCh1 = cos(deg2rad(y_dcr7dPer100kCh1)) / scaleFactor,
         custlng_dcr7dPer100kCh3 = cos(deg2rad(y_dcr7dPer100kCh3)) / scaleFactor,
         custlng_dcr7dPer100kCh7 = cos(deg2rad(y_dcr7dPer100kCh7)) / scaleFactor,
@@ -81,7 +86,7 @@ server <- (function(input, output) {
         custlat_Ch3 = Y + sign(dcr7dPer100kCh3) * (custlat_dcr7dPer100kCh3),
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
-
+    browser()
     img <- "https://logos-download.com/wp-content/uploads/2019/06/Aalborg_Universitet_Logo_white_text.png"
     
     bins <- c(0,10,20,30,40,50,10000)
@@ -217,7 +222,7 @@ server <- (function(input, output) {
   
 
   # observe({
-  #   click <- input$map_rectangle_click
+  #   click <- input$map_shape_click
   #   if(is.null(click))
   #     return()
   # 
