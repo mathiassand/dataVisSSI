@@ -12,7 +12,7 @@ shinyUI(
   fluidPage( includeCSS("custom.css"),
   headerPanel("DK Covid cases overview"),
   sidebarPanel(
-    fileInput("file1", "Choose CSV File",
+    fileInput("file1", "Select the file: Municipality_cases_time_series.csv ",
       accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")
     ),
     tags$hr()
