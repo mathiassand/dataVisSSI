@@ -37,22 +37,22 @@ server <- (function(input, output) {
     dk_merge_coords_test <-
       dk_data %>%
       merge(sf_dk)
-
+    
     # merging the covid data into the shapefile to plot it
     df_dk_covid <-
       dk_data %>%
-      dplyr::filter(date_sample == "2020-10-22") %>%
+      group_by(kommune) %>%
+      slice(which.max(date_sample)) %>%
       merge(sf_dk)
-
+    
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
     df_dk_covid <-
       st_as_sf(df_dk_covid, sf_column_name = "geometry")
 
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
-      dplyr::filter(date_sample == "2020-10-22")
-
-   
+      group_by(kommune) %>%
+      slice(which.max(date_sample)) 
 
     a_one_date$dcr7dPer100kCh1Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh1), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
     a_one_date$dcr7dPer100kCh3Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh3), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
@@ -96,7 +96,7 @@ server <- (function(input, output) {
     )
 
     #a_one_date$zoom <- sample(1:99, size = length(a_one_date$kommune), replace = T)
-
+    
     map <- leaflet(options = leafletOptions(zoomSnap = 0.25, zoomDelta=0.25)) %>%
       setView(lng = 11.001785, lat = 56.26392, zoom = 7.5) %>%
       addPolygons(
