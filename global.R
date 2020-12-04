@@ -13,7 +13,7 @@ dk <- st_read("shapefiles/gadm36_DNK_2.shp")
 dk$NAME_2 <- str_replace(dk$NAME_2, "Århus", "Aarhus")
 dk$NAME_2 <- str_replace(dk$NAME_2, "Høje Taastrup", "Høje-Taastrup")
 dk$NAME_2 <- str_replace(dk$NAME_2, "Vesthimmerland", "Vesthimmerlands")
-
+# dc<-read_delim("Municipality_cases_time_series.csv", ";", escape_double = FALSE, trim_ws = TRUE)
 dsize <- dsize %>%
   select(contains("Kom"), Befolkningstal) %>%
   rename("kID" = `Kommune_(id)`, "kommune" = `Kommune_(navn)`, population = Befolkningstal) %>%
@@ -53,9 +53,9 @@ ProcessData <- function(dc) {
       casesDPer100k = casesDiagnosed / (population / 100000),                       
       dcr7d = roll_sum(casesDiagnosed, width = 7, min_obs = 1),
       dcr7dPer100k = dcr7d / (population / 100000),
-      dcr7dPer100kCh1 = lag(dcr7dPer100k, 1) - dcr7dPer100k,
-      dcr7dPer100kCh3 = lag(dcr7dPer100k, 3) - dcr7dPer100k,
-      dcr7dPer100kCh7 = lag(dcr7dPer100k, 7) - dcr7dPer100k                                 
+      dcr7dPer100kCh1 = dcr7dPer100k - lag(dcr7dPer100k, 1),
+      dcr7dPer100kCh3 = dcr7dPer100k - lag(dcr7dPer100k, 3),
+      dcr7dPer100kCh7 = dcr7dPer100k - lag(dcr7dPer100k, 7)                                 
     )
 
   return(dc)
