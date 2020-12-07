@@ -42,17 +42,17 @@ server <- (function(input, output) {
     df_dk_covid <-
       dk_data %>%
       group_by(kommune) %>%
-      slice(which.max(date_sample)) %>%
+      slice(which.max(as.numeric(as.factor(date_sample))))  %>%
       merge(sf_dk)
     
     # to plot the data it needs to be a shapefile (sf) again - creating shapefile
     df_dk_covid <-
       st_as_sf(df_dk_covid, sf_column_name = "geometry")
-
+    
     # filtering for a single date to not cause overplotting
     a_one_date <- dk_merge_coords_test %>%
       group_by(kommune) %>%
-      slice(which.max(date_sample)) 
+      slice(which.max(as.numeric(as.factor(date_sample)))) 
 
     a_one_date$dcr7dPer100kCh1Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh1), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
     a_one_date$dcr7dPer100kCh3Col <- plyr::mapvalues(sign(a_one_date$dcr7dPer100kCh3), from = c(1, 0, -1), to = c("#FF0000", "#00FFFF", "#00FF00"))
