@@ -86,8 +86,8 @@ server <- (function(input, output) {
         custlat_Ch7 = Y + sign(dcr7dPer100kCh7) * (custlat_dcr7dPer100kCh7)
       )
     #img <- "https://logos-download.com/wp-content/uploads/2019/06/Aalborg_Universitet_Logo_white_text.png"
-    
-    bins <- c(0,10,20,30,40,50,10000)
+
+    bins <- c(0,10,20,50,100,200,10000)
       # seq(min(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100, max(df_dk_covid$dcr7dPer100k)*100 / 5)
     #
     pal <- colorBin(
