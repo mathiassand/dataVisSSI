@@ -147,7 +147,7 @@ dk_merge_coords_test <-
 # merging the covid data into the shapefile to plot it
 df_dk_covid <-
   df %>%
-  filter(date_sample == "2020-09-23") %>%
+  filter(date_sample == "2020-09-17") %>%
   merge(df_dk)
 
 # to plot the data it needs to be a shapefile (sf) again - creating shapefile
@@ -162,7 +162,7 @@ df_cph_covid<-
 
 # filtering for a single date to not cause overplotting
 a_one_date <- dk_merge_coords_test %>%
-  filter(date_sample == "2020-09-23")
+  filter(date_sample == "2020-09-17")
 
 
 ########### MAP###########
